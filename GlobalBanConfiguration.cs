@@ -1,15 +1,16 @@
-﻿using System;
-using Rocket.API;
+﻿using Rocket.API;
 
-namespace fr34kyn01535.GlobalBan
+namespace BanSystem
 {
     public class GlobalBanConfiguration : IRocketPluginConfiguration
     {
-        public bool VPN_Proxy_Protection;
+        public bool Proxy_Protection;
+        public int Socket_Port;
         public string API_Key;
+        public bool Bot_Enabled;
         public string Bot_Token;
         public string Cmd_Prefix;
-        public Discord.Color Discord_Ban_Color;
+        //public Discord.Color Discord_Ban_Color;
         public string DatabaseAddress;
         public string DatabaseUsername;
         public string DatabasePassword;
@@ -21,7 +22,8 @@ namespace fr34kyn01535.GlobalBan
 
         public void LoadDefaults()
         {
-            VPN_Proxy_Protection = true;
+            Proxy_Protection = false;
+            Bot_Enabled = false;
             DatabaseAddress = "localhost";
             DatabaseUsername = "unturned";
             DatabasePassword = "password";
@@ -33,8 +35,9 @@ namespace fr34kyn01535.GlobalBan
             API_Key = "NjE4NTpHNXZ1Z0ZaVkU3Mmc2SVJLN0dFWjRTWlVUYzJJRGQ2WQ==";
             Bot_Token = "";
             Cmd_Prefix = "$";
-            Discord_Ban_Color = Discord.Color.Default;
+            //Discord_Ban_Color = Discord.Color.Default;
             //Discord_Bot_Enabled = true;
+            Socket_Port = 18000;
         }
     }
 }

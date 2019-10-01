@@ -5,7 +5,7 @@ using System;
 using Rocket.Unturned.Chat;
 using Rocket.Unturned.Player;
 
-namespace fr34kyn01535.GlobalBan
+namespace BanSystem
 {
     public class CommandKick : IRocketCommand
     {

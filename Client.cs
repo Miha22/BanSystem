@@ -1,13 +1,58 @@
-﻿namespace fr34kyn01535.GlobalBan
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BanSystem
 {
-    public class Client
+    class Client
     {
-        public string ip;
-        public string countryCode;
-        public string countryName;
-        public string asn;
-        public string isp;
-        public byte block;
-        public string hostname;
+        private static readonly string _address = "127.0.0.1";
+
+        internal static void Connect()
+        {
+            try
+            {
+                IPEndPoint ipPoint = new IPEndPoint(IPAddress.Parse(_address), GlobalBan.Instance.Configuration.Instance.Socket_Port);
+
+                Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                // подключаемся к удаленному хосту
+                socket.Connect(ipPoint);
+                string message = "";
+                while (message != "!stop")
+                {
+                    //посылаем
+                    Console.Write("Введите сообщение: ");
+                    message = Console.ReadLine();
+                    byte[] data = Encoding.Unicode.GetBytes(message);
+                    socket.Send(data);
+
+
+                    // получаем ответ
+                    data = new byte[256]; // буфер для ответа
+                    StringBuilder builder = new StringBuilder();
+                    int bytes = 0; // количество полученных байт
+
+                    do
+                    {
+                        bytes = socket.Receive(data, data.Length, 0);
+                        builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
+                    }
+                    while (socket.Available > 0);
+                    Console.WriteLine("ответ сервера: " + builder.ToString());
+
+                    // закрываем сокет
+                }
+                socket.Shutdown(SocketShutdown.Both);
+                socket.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
     }
 }

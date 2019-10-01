@@ -1,6 +1,4 @@
-﻿using Discord.WebSocket;
-using Discord;
-//using DiscordTutorialBot.Core;
+﻿//using DiscordTutorialBot.Core;
 using Newtonsoft.Json;
 using Rocket.API.Collections;
 using Rocket.Core.Plugins;
@@ -11,30 +9,33 @@ using Rocket.Unturned.Player;
 using SDG.Unturned;
 using Steamworks;
 using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace fr34kyn01535.GlobalBan
+namespace BanSystem
 {
     public class GlobalBan : RocketPlugin<GlobalBanConfiguration>
     {
         internal static GlobalBan Instance;
         internal DatabaseManager Database;
-        internal DiscordManager Discord;
-        private DiscordSocketClient _client;
-        private CommandHandler _handler;
 
         //public static Dictionary<CSteamID, string> Players = new Dictionary<CSteamID, string>();
 
         protected override void Load()
         {
-            if (Configuration.Instance.API_Key == "")
-            {
-                Rocket.Core.Logging.Logger.LogError("There is no API key in config! Disabling VPN/Proxy protection... Add your token in config to get full protection");
-                Configuration.Instance.VPN_Proxy_Protection = false;
-            }
-            LaunchBotAsync();
             Instance = this;
+
+            if (Configuration.Instance.API_Key == "" || !Configuration.Instance.Proxy_Protection)
+            {
+                Rocket.Core.Logging.Logger.LogWarning("[WARNING] VPN/Proxy protection is DISABLED, check your config for correct API!");
+                Configuration.Instance.Proxy_Protection = false;
+            }
+
+            if (Configuration.Instance.Bot_Token == "" || !Configuration.Instance.Bot_Enabled)
+            {
+                Rocket.Core.Logging.Logger.LogWarning("[WARNING] Discord bot is DISABLED, check your config for correct token!");
+                Configuration.Instance.Bot_Enabled = false;
+            }
+            
             Database = new DatabaseManager();
             UnturnedPermissions.OnJoinRequested += Events_OnJoinRequested;
             U.Events.OnPlayerConnected += RocketServerEvents_OnPlayerConnected;
@@ -104,7 +105,7 @@ namespace fr34kyn01535.GlobalBan
                     request.Headers.TryAddWithoutValidation("X-Key", $"{Instance.Configuration.Instance.API_Key}");
                     HttpResponseMessage response = await httpClient.SendAsync(request);
                     string json = await response.Content.ReadAsStringAsync();
-                    Client client = JsonConvert.DeserializeObject<Client>(json);
+                    ConnectedPlayer client = JsonConvert.DeserializeObject<ConnectedPlayer>(json);
                     Console.WriteLine(json);
                     //string[] str = json.Split(':');
                     //string countryCode = str[2].Substring(1, 2);

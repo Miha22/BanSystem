@@ -5,7 +5,7 @@ using Steamworks;
 using System;
 using System.Collections.Generic;
 
-namespace fr34kyn01535.GlobalBan
+namespace BanSystem
 {
     public class CommandUnban : IRocketCommand
     {

@@ -5,7 +5,7 @@ using System;
 using System.Text.RegularExpressions;
 //using System.Text.RegularExpressions;
 
-namespace fr34kyn01535.GlobalBan
+namespace BanSystem
 {
     //https://rutracker.org/forum/viewtopic.php?t=5542725
     public class DatabaseManager
