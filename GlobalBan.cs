@@ -16,6 +16,7 @@ namespace BanSystem
     public class GlobalBan : RocketPlugin<GlobalBanConfiguration>
     {
         internal static GlobalBan Instance;
+        private int _botProcessID;
         internal DatabaseManager Database;
 
         //public static Dictionary<CSteamID, string> Players = new Dictionary<CSteamID, string>();
@@ -29,13 +30,27 @@ namespace BanSystem
                 Rocket.Core.Logging.Logger.LogWarning("[WARNING] VPN/Proxy protection is DISABLED, check your config for correct API!");
                 Configuration.Instance.Proxy_Protection = false;
             }
-
-            if (Configuration.Instance.Bot_Token == "" || !Configuration.Instance.Bot_Enabled)
+            //Arguments = $@"/c dotnet E:\Users\Deniel\Source\Repos\SocketPractiseServer\SocketPractiseServer\bin\Debug\netcoreapp2.1\SocketPractiseServer.dll"
+            if (Configuration.Instance.Bot_Token != "" && Configuration.Instance.Bot_Enabled)
+            {
+               //run bot if sucess returned continue, if not UnloadPlugin()
+               Process process = new Process();
+               ProcessStartInfo startInfo = new ProcessStartInfo
+               {
+                   WindowStyle = ProcessWindowStyle.Normal,
+                   FileName = "cmd.exe",
+                   Arguments = $@"/c dotnet {Provider.path}\Libraries\DiscordBot.dll"
+               };
+               process.StartInfo = startInfo;
+               process.Start();
+               _botProcessID = process.Id;
+            }
+            else
             {
                 Rocket.Core.Logging.Logger.LogWarning("[WARNING] Discord bot is DISABLED, check your config for correct token!");
                 Configuration.Instance.Bot_Enabled = false;
             }
-            
+
             Database = new DatabaseManager();
             UnturnedPermissions.OnJoinRequested += Events_OnJoinRequested;
             U.Events.OnPlayerConnected += RocketServerEvents_OnPlayerConnected;
@@ -45,34 +60,35 @@ namespace BanSystem
 
         protected override void Unload()
         {
+            System.Diagnostics.Process.GetProcessById(_botProcessID).CloseMainWindow();
             UnturnedPermissions.OnJoinRequested -= Events_OnJoinRequested;
             U.Events.OnPlayerConnected -= RocketServerEvents_OnPlayerConnected;
             //Rocket.Core.Logging.Logger.Log($"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name} by M22 loaded!", ConsoleColor.Cyan);
         }
 
-        private void LaunchBotAsync()
-        {
-            if(Configuration.Instance.Bot_Token == "")
-            {
-                Rocket.Core.Logging.Logger.LogError("There is no bot token in config! Disabling discord reports...");
-                return;
-            }
-            Discord = new DiscordManager();
-            _client = new DiscordSocketClient(new DiscordSocketConfig
-            {
-                LogLevel = LogSeverity.Verbose
-            });
-            _client.Log += Log;
-            _client.LoginAsync(TokenType.Bot, Configuration.Instance.Bot_Token);
-            _client.StartAsync();
-            _handler = new CommandHandler();
-            _handler.InitializeAsync(_client);
-        }
+        //private void LaunchBotAsync()
+        //{
+        //    if(Configuration.Instance.Bot_Token == "")
+        //    {
+        //        Rocket.Core.Logging.Logger.LogError("There is no bot token in config! Disabling discord reports...");
+        //        return;
+        //    }
+        //    Discord = new DiscordManager();
+        //    _client = new DiscordSocketClient(new DiscordSocketConfig
+        //    {
+        //        LogLevel = LogSeverity.Verbose
+        //    });
+        //    _client.Log += Log;
+        //    _client.LoginAsync(TokenType.Bot, Configuration.Instance.Bot_Token);
+        //    _client.StartAsync();
+        //    _handler = new CommandHandler();
+        //    _handler.InitializeAsync(_client);
+        //}
 
-        private async Task Log(LogMessage msg)
-        {
-            Rocket.Core.Logging.Logger.Log("Discord bot: " + msg.Message);
-        }
+        //private async Task Log(LogMessage msg)
+        //{
+        //    Rocket.Core.Logging.Logger.Log("Discord bot: " + msg.Message);
+        //}
 
 
         private void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
@@ -85,7 +101,7 @@ namespace BanSystem
             foreach (var item in player.Player.channel.owner.playerID.hwid)
             {
                 Console.Write($"{item}.");
-            }//player.CSteamID.ToString(), ip, 
+            }//player.CSteamID.ToString(), ip,
             if (Database.IsBanned(GetHWidString(player.Player.channel.owner.playerID.hwid)))
             {
                 Provider.kick(player.CSteamID, "");
@@ -223,7 +239,7 @@ namespace BanSystem
         //{
         //    if (!Players.ContainsKey(player.CSteamID))
         //        Players.Add(player.CSteamID, player.CharacterName);
-            
+
         //    if (Configuration.Instance.KickInsteadReject)
         //    {
         //        DatabaseManager.Ban ban = Database.GetBan(player.Id);

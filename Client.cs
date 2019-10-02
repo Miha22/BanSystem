@@ -10,7 +10,29 @@ namespace BanSystem
 {
     class Client
     {
-        private static readonly string _address = "127.0.0.1";
+        private readonly string _address = "127.0.0.1";
+        private IPEndPoint _ipPoint;
+        privte Socket _socket;
+
+        public Client()
+        {
+          _ipPoint = new IPEndPoint(IPAddress.Parse(_address), GlobalBan.Instance.Configuration.Instance.Socket_Port);
+          _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+          // подключаемся к удаленному хосту
+          _socket.Connect(ipPoint);
+        }
+
+        internal void Shutdown()
+        {
+          _socket.Shutdown(SocketShutdown.Both);
+          _socket.Close();
+        }
+
+        internal void SendMessage(string message)
+        {
+          byte[] data = Encoding.Unicode.GetBytes(message);
+          socket.Send(data);
+        }
 
         internal static void Connect()
         {
