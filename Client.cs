@@ -12,14 +12,14 @@ namespace BanSystem
     {
         private readonly string _address = "127.0.0.1";
         private IPEndPoint _ipPoint;
-        privte Socket _socket;
+        private Socket _socket;
 
         public Client()
         {
           _ipPoint = new IPEndPoint(IPAddress.Parse(_address), GlobalBan.Instance.Configuration.Instance.Socket_Port);
           _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
           // подключаемся к удаленному хосту
-          _socket.Connect(ipPoint);
+          _socket.Connect(_ipPoint);
         }
 
         internal void Shutdown()
@@ -31,10 +31,10 @@ namespace BanSystem
         internal void SendMessage(string message)
         {
           byte[] data = Encoding.Unicode.GetBytes(message);
-          socket.Send(data);
+          _socket.Send(data);
         }
 
-        internal static void Connect()
+        internal void Connect()
         {
             try
             {

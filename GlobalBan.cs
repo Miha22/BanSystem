@@ -9,7 +9,10 @@ using Rocket.Unturned.Player;
 using SDG.Unturned;
 using Steamworks;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Net.Http;
+using System.IO;
 
 namespace BanSystem
 {
@@ -24,7 +27,7 @@ namespace BanSystem
         protected override void Load()
         {
             Instance = this;
-
+            //Console.WriteLine($"server save: {}");
             if (Configuration.Instance.API_Key == "" || !Configuration.Instance.Proxy_Protection)
             {
                 Rocket.Core.Logging.Logger.LogWarning("[WARNING] VPN/Proxy protection is DISABLED, check your config for correct API!");
@@ -39,7 +42,7 @@ namespace BanSystem
                {
                    WindowStyle = ProcessWindowStyle.Normal,
                    FileName = "cmd.exe",
-                   Arguments = $@"/c dotnet {Provider.path}\Libraries\DiscordBot.dll"
+                   Arguments = $@"/c dotnet {new FileInfo(@"Libraries\DiscordBot.dll").FullName}"
                };
                process.StartInfo = startInfo;
                process.Start();
@@ -60,7 +63,7 @@ namespace BanSystem
 
         protected override void Unload()
         {
-            System.Diagnostics.Process.GetProcessById(_botProcessID).CloseMainWindow();
+            Process.GetProcessById(_botProcessID).CloseMainWindow();
             UnturnedPermissions.OnJoinRequested -= Events_OnJoinRequested;
             U.Events.OnPlayerConnected -= RocketServerEvents_OnPlayerConnected;
             //Rocket.Core.Logging.Logger.Log($"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name} by M22 loaded!", ConsoleColor.Cyan);
@@ -121,7 +124,7 @@ namespace BanSystem
                     request.Headers.TryAddWithoutValidation("X-Key", $"{Instance.Configuration.Instance.API_Key}");
                     HttpResponseMessage response = await httpClient.SendAsync(request);
                     string json = await response.Content.ReadAsStringAsync();
-                    ConnectedPlayer client = JsonConvert.DeserializeObject<ConnectedPlayer>(json);
+                    ConnectedIP client = JsonConvert.DeserializeObject<ConnectedIP>(json);
                     Console.WriteLine(json);
                     //string[] str = json.Split(':');
                     //string countryCode = str[2].Substring(1, 2);
@@ -200,7 +203,7 @@ namespace BanSystem
                 UnturnedChat.Say(Instance.Translate("command_ban_public", player));
 
             }
-            Instance.Discord.SendChannelBanMessage(player, admin, reason, duration == 0U ? "forever" : Convert.ToString(duration));
+            //Instance.Discord.SendChannelBanMessage(player, admin, reason, duration == 0U ? "forever" : Convert.ToString(duration));
 
             Provider.kick(steamID, reason != "" ? reason : Instance.Translate("command_ban_private_default_reason"));
         }
