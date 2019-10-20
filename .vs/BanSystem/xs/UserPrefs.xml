@@ -1,7 +1,8 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workbench ActiveDocument="GlobalBan.cs">
     <Files>
-      <File FileName="GlobalBan.cs" Line="35" Column="76" />
+      <File FileName="GlobalBan.cs" Line="57" Column="41" />
+      <File FileName="Client.cs" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">

@@ -13,12 +13,20 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace BanSystem
 {
+    enum OS
+    {
+        Windows,
+        Mac,
+        Linux
+    }
     public class GlobalBan : RocketPlugin<GlobalBanConfiguration>
     {
         internal static GlobalBan Instance;
+        private Process serverProcess;
         private int _botProcessID;
         internal DatabaseManager Database;
 
@@ -27,6 +35,7 @@ namespace BanSystem
         protected override void Load()
         {
             Instance = this;
+            serverProcess = new Process();
             //Console.WriteLine($"server save: {}");
             if (Configuration.Instance.API_Key == "" || !Configuration.Instance.Proxy_Protection)
             {
@@ -36,17 +45,38 @@ namespace BanSystem
             //Arguments = $@"/c dotnet E:\Users\Deniel\Source\Repos\SocketPractiseServer\SocketPractiseServer\bin\Debug\netcoreapp2.1\SocketPractiseServer.dll"
             if (Configuration.Instance.Bot_Token != "" && Configuration.Instance.Bot_Enabled)
             {
-               //run bot if sucess returned continue, if not UnloadPlugin()
-               Process process = new Process();
-               ProcessStartInfo startInfo = new ProcessStartInfo
-               {
-                   WindowStyle = ProcessWindowStyle.Normal,
-                   FileName = "cmd.exe",
-                   Arguments = $@"/c dotnet {new FileInfo(@"Libraries\DiscordBot.dll").FullName}"
-               };
-               process.StartInfo = startInfo;
-               process.Start();
-               _botProcessID = process.Id;
+                //run bot if sucess returned continue, if not UnloadPlugin()
+                OS os = GetOS();
+                ProcessStartInfo startInfo = new ProcessStartInfo();
+                if (os == OS.Windows)
+                {
+                    startInfo.FileName = "cmd";
+                    startInfo.Arguments = @"/c dotnet /Libraries/DiscordBot.dll";
+                    startInfo.WindowStyle = ProcessWindowStyle.Normal;
+                }
+                else if (os == OS.Linux)
+                {
+                    startInfo.FileName = "/bin/bash";
+                    startInfo.Arguments = "-c \" " + "gnome - terminal - x bash - ic 'dotnet $./Libraries/DiscordBot.dll; bash'" + " \"";
+                    //proc.StartInfo.Arguments = "-c \" " + "gnome - terminal - x bash - ic 'cd $HOME; ls; bash'" + " \"";
+                    startInfo.UseShellExecute = false;
+                    startInfo.RedirectStandardOutput = true;
+                    
+                    //while (!proc.StandardOutput.EndOfStream)
+                    //{
+                    //    Console.WriteLine(proc.StandardOutput.ReadLine());
+                    //}
+                }
+                else
+                {
+                    startInfo.FileName = "dotnet";
+                    startInfo.Arguments = @"/Libraries/DiscordBot.dll";
+                    startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                }
+
+                serverProcess.StartInfo = startInfo;
+                serverProcess.Start();
+                _botProcessID = serverProcess.Id;
             }
             else
             {
@@ -201,7 +231,6 @@ namespace BanSystem
             else if (publicsay)
             {
                 UnturnedChat.Say(Instance.Translate("command_ban_public", player));
-
             }
             //Instance.Discord.SendChannelBanMessage(player, admin, reason, duration == 0U ? "forever" : Convert.ToString(duration));
 
@@ -270,6 +299,46 @@ namespace BanSystem
             {
                 Console.WriteLine(e.Message);
             }
+        }
+
+
+        [DllImport("libc")]
+        static extern int Uname(IntPtr buf);
+
+        private OS GetOS()
+        {
+            IntPtr buf = IntPtr.Zero;
+            try
+            {
+                buf = Marshal.AllocHGlobal(8192);
+                // This is a hacktastic way of getting sysname from uname ()
+                if (Uname(buf) == 0)
+                {
+                    string os = Marshal.PtrToStringAnsi(buf);
+                    if (os == "Darwin")
+                        return OS.Mac;
+                    if (os == "Linux")
+                        return OS.Linux;
+                    if (Path.DirectorySeparatorChar == '\\')
+                        return OS.Windows;
+                }
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            finally
+            {
+                if (buf != IntPtr.Zero)
+                    Marshal.FreeHGlobal(buf);
+            }
+
+            throw new Exception("Unable to define Operating System");
+        }
+
+        private bool IsWin() 
+        {
+            return Path.DirectorySeparatorChar == '\\';
         }
     }
 }
