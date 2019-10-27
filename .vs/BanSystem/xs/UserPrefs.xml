@@ -1,7 +1,7 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workbench ActiveDocument="GlobalBan.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="CommandBan.cs">
     <Files>
-      <File FileName="GlobalBan.cs" Line="136" Column="13" />
+      <File FileName="GlobalBan.cs" Line="124" Column="22" />
       <File FileName="CommandBan.cs" Line="145" Column="226" />
       <File FileName="GlobalBanConfiguration.cs" Line="28" Column="149" />
     </Files>
@@ -9,7 +9,9 @@
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="BanSystem" expanded="True">
-            <Node name="BanSystem" expanded="True" selected="True" />
+            <Node name="BanSystem" expanded="True">
+              <Node name="CommandBan.cs" selected="True" />
+            </Node>
           </Node>
         </State>
       </Pad>
