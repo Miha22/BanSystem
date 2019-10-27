@@ -5,6 +5,7 @@ using SDG.Unturned;
 using Steamworks;
 using System.Collections.Generic;
 using UnityEngine;
+using Logger = Rocket.Core.Logging.Logger;
 
 namespace BanSystem
 {
@@ -118,94 +119,30 @@ namespace BanSystem
 
 
                 string adminName = caller == null ? "Console" : caller.DisplayName;
+                uint duration = 0;
 
-                if(command.Length == 1)
+                if (command.Length == 3 && !uint.TryParse(command[2], out duration))
                 {
-                    GlobalBan.Instance.BanDisconnect(targetPlayer.playerID.characterName, targetPlayer.playerID.steamID, ip, hwid, true, adminName);
-                }
-                
-
-                if (command.Length == 3)
-                {
-                    if (!uint.TryParse(command[1], out uint duration))
+                    switch (command[2].ToLower())
                     {
-                        switch (command[1].ToLower())
-                        {
-                            case "day":
-                                duration = 86400;
-                                break;
-                            case "week":
-                                duration = 604800;
-                                break;
-                            case "month":
-                                duration = 2628000;
-                                break;
-                            case "year":
-                                duration = 31536000;
-                                break;
-                            default:
-                                if (caller == null)
-                                    GlobalBan.Instance.Discord.SendEmbedError("Unrecognized provided ban time");
-                                else
-                                    UnturnedChat.Say(caller, "Unrecognized provided ban time");
-                                return;
-                        }
+                        case "day":
+                            duration = 86400;
+                            break;
+                        case "week":
+                            duration = 604800;
+                            break;
+                        case "month":
+                            duration = 2628000;
+                            break;
+                        case "year":
+                            duration = 31536000;
+                            break;
+                        default:
+                            UnturnedChat.Say(caller, "Unrecognized provided ban time");
+                            return;
                     }
-
-                    GlobalBan.Instance.BanDisconnect(targetPlayer.playerID.characterName, targetPlayer.playerID.steamID, ip, hwid, true, adminName, command[2], duration);
-
-                    //GlobalBan.Instance.Database.BanPlayer(, .ToString(), ip, hwid, adminName, command[1], duration);
-                    //UnturnedChat.Say(GlobalBan.Instance.Translate("command_ban_public_reason", targetPlayer.playerID.characterName, command[1]));
-                    //Provider.kick(targetPlayer.playerID.steamID, command[1]);
-
-                    //here should be discord report
                 }
-                else if (command.Length == 2)
-                {
-                    uint duration;
-                    if (!uint.TryParse(command[1], out duration))
-                    {
-                        switch (command[1].ToLower())
-                        {
-                            case "day":
-                                duration = 86400;
-                                break;
-                            case "week":
-                                duration = 604800;
-                                break;
-                            case "month":
-                                duration = 2628000;
-                                break;
-                            case "year":
-                                duration = 31536000;
-                                break;
-                            default:
-                                if (caller == null)
-                                    GlobalBan.Instance.Discord.SendEmbedError("Unrecognized provided ban time");
-                                else
-                                    UnturnedChat.Say(caller, "Unrecognized provided ban time");
-                                return;
-                        }
-                    }
-                    //GlobalBan.Instance.Database.BanPlayer(targetPlayer.playerID.characterName, targetPlayer.playerID.steamID.ToString(), ip, hwid, adminName, command[1], 0);
-                    //UnturnedChat.Say(GlobalBan.Instance.Translate("command_ban_public_reason", targetPlayer.playerID.characterName, command[1]));
-                    //Provider.kick(targetPlayer.playerID.steamID, command[1]);
-                    GlobalBan.Instance.BanDisconnect(targetPlayer.playerID.characterName, targetPlayer.playerID.steamID, ip, hwid, true, adminName, "", duration);
-                }
-                else if (command.Length == 1)
-                {
-                    //GlobalBan.Instance.Database.BanPlayer(targetPlayer.playerID.characterName, targetPlayer.playerID.steamID.ToString(), ip, hwid, adminName, "", 0);
-                    //UnturnedChat.Say(GlobalBan.Instance.Translate("command_ban_private", targetPlayer.playerID.characterName));
-                    //Provider.kick(targetPlayer.playerID.steamID, GlobalBan.Instance.Translate("command_ban_private_default_reason"));
-                    
-                }
-                else
-                {
-                    if (caller == null)
-                        GlobalBan.Instance.Discord.SendEmbedError("Invalid command usage");
-                    else
-                        UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_invalid_parameter"));
-                }
+                GlobalBan.Instance.BanDisconnect(targetPlayer.playerID.characterName, targetPlayer.playerID.steamID, ip, hwid, true, adminName, command.Length == 1 ? "" : command[1], command.Length == 1 || command.Length == 2 ? 0U : duration);
             }
             catch (System.Exception ex)
             {

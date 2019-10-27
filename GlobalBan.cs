@@ -2,35 +2,30 @@
 using Newtonsoft.Json;
 using Rocket.API.Collections;
 using Rocket.Core.Plugins;
-using Rocket.Unturned;
 using Rocket.Unturned.Chat;
 using Rocket.Unturned.Permissions;
-using Rocket.Unturned.Player;
 using SDG.Unturned;
 using Steamworks;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Net.Http;
-using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Net;
 using Logger = Rocket.Core.Logging.Logger;
 
 namespace BanSystem
 {
-    enum OS
-    {
-        Windows,
-        Mac,
-        Linux
-    }
+    //enum OS
+    //{
+    //    Windows,
+    //    Mac,
+    //    Linux
+    //}
     public class GlobalBan : RocketPlugin<GlobalBanConfiguration>
     {
         internal static GlobalBan Instance;
-        private Process serverProcess;
-        private int _botProcessID;
+        //private Process serverProcess;
+        //private int _botProcessID;
         internal DatabaseManager Database;
 
         //public static Dictionary<CSteamID, string> Players = new Dictionary<CSteamID, string>();
@@ -38,7 +33,7 @@ namespace BanSystem
         protected override void Load()
         {
             Instance = this;
-            serverProcess = new Process();
+            //serverProcess = new Process();
             //Console.WriteLine($"server save: {}");
             if (Configuration.Instance.API_Key == "" || !Configuration.Instance.Proxy_Protection)
             {
@@ -89,15 +84,15 @@ namespace BanSystem
 
             Database = new DatabaseManager();
             UnturnedPermissions.OnJoinRequested += Events_OnJoinRequested;
-            U.Events.OnPlayerConnected += RocketServerEvents_OnPlayerConnected;
-            Rocket.Core.Logging.Logger.Log($"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name} by M22 loaded!", ConsoleColor.Cyan);
+            //U.Events.OnPlayerConnected += RocketServerEvents_OnPlayerConnected;
+            Logger.Log($"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name} loaded!", ConsoleColor.Cyan);
         }
 
         protected override void Unload()
         {
-            Process.GetProcessById(_botProcessID).CloseMainWindow();
+            //Process.GetProcessById(_botProcessID).CloseMainWindow();
             UnturnedPermissions.OnJoinRequested -= Events_OnJoinRequested;
-            U.Events.OnPlayerConnected -= RocketServerEvents_OnPlayerConnected;
+            //U.Events.OnPlayerConnected -= RocketServerEvents_OnPlayerConnected;
             //Rocket.Core.Logging.Logger.Log($"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name} by M22 loaded!", ConsoleColor.Cyan);
         }
 
@@ -106,7 +101,7 @@ namespace BanSystem
             try
             {
                 TimeZoneInfo moscowTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Russian Standard Time");
-                Field[] flist = new Field[] { new Field("Ban report", text, false) };
+                Field[] flist = { new Field("Ban report", text, false) };
                 Embed embed = new Embed()
                 {
                     fields = flist,
@@ -121,7 +116,7 @@ namespace BanSystem
                 {
                     try
                     {
-                        SendMessageAsync(new DiscordWebhookMessage() { embeds = elist, username = Configuration.Instance.WebhookName, avatar_url = "https://i.imgur.com/YQDOQ5W.png" }, Configuration.Instance.Webhook);
+                        SendMessageAsync(new DiscordWebhookMessage { embeds = elist, username = Configuration.Instance.WebhookName, avatar_url = "https://i.imgur.com/YQDOQ5W.png" }, Configuration.Instance.Webhook);
                     }
                     catch (Exception e)
                     {
@@ -138,11 +133,9 @@ namespace BanSystem
         private void SendMessageAsync(DiscordWebhookMessage msg, string url)
         {
             string json = JsonConvert.SerializeObject(msg);
-            using (WebClient wc = new WebClient())
-            {
-                wc.Headers.Set(HttpRequestHeader.ContentType, "application/json");
-                wc.UploadString(url, json);
-            }
+            using WebClient wc = new WebClient();
+            wc.Headers.Set(HttpRequestHeader.ContentType, "application/json");
+            wc.UploadString(url, json);
         }
 
         //private void LaunchBotAsync()
@@ -288,19 +281,15 @@ namespace BanSystem
             return hwid;
         }
 
-        internal void BanDisconnect(string player, CSteamID steamID, string ip, string hwid, bool publicsay, string admin, string reason = "", uint duration = 0U)
+        internal void BanDisconnect(string player, CSteamID steamID, string ip, string hwid, bool publicsay, string admin, string reason, uint duration)
         {
             Instance.Database.BanPlayer(player, steamID.ToString(), ip, hwid, admin, reason, duration);//0=forever
-            if (publicsay && reason != "")
+            if (publicsay)
             {
                 UnturnedChat.Say(Instance.Translate("command_ban_public_reason", player, reason));
             }
-            else if (publicsay)
-            {
-                UnturnedChat.Say(Instance.Translate("command_ban_public", player));
-            }
-            //Instance.Discord.SendChannelBanMessage(player, admin, reason, duration == 0U ? "forever" : Convert.ToString(duration));
-
+            //Instance.Discord.SendChannelBanMessage(player, admin, reason, duration == 0U ? "forever" : Convert.ToString(duration));{duration == 0U ? }
+            SendInDiscord($"**User Banned**\t**SteamID**\t**Executor**\n{player}\t{steamID}\t{admin}\n**Duration**\t**Reason**\n{(duration == 0U ? "∞" : duration.ToString())}\t{(reason == "" ? "N/A" : reason)}");
             Provider.kick(steamID, reason != "" ? reason : Instance.Translate("command_ban_private_default_reason"));
         }
 
@@ -352,14 +341,14 @@ namespace BanSystem
         //    player.Kick(Translate("default_banmessage",ban.Admin,ban.Time.ToString(),ban.Duration == -1 ? "" : ban.Duration.ToString()));
         //}
 
-        public void Events_OnJoinRequested(CSteamID player, ref ESteamRejection? rejection)
+        private void Events_OnJoinRequested(CSteamID player, ref ESteamRejection? rejection)
         {
             try
             {
                 if (IsBadIP(player).Result || Database.IsBanned(player))
                 {
                     rejection = ESteamRejection.AUTH_PUB_BAN;
-                    Logger.Log("Rejected VPN connection");
+                    Logger.Log($"VPN Connection rejected");
                 }
             }
             catch (Exception e)
