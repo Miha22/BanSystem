@@ -250,22 +250,14 @@ namespace BanSystem
 
             switch (number1)
             {
-                case 10:
-                    return true;
-                case 127:
+                case 10 || 127:
                     return true;
                 case 172:
-                    if (number2 >= 16 && number2 < 32)
-                        return true;
-                    return false;
+                    return number2 >= 16 && number2 < 32;
                 case 192:
-                    if (number2 == 168)
-                        return true;
-                    return false;
+                    return number2 == 168;
                 case 169:
-                    if (number2 == 254)
-                        return true;
-                    return false;
+                    return number2 == 254;
                 default:
                     return false;
             }
