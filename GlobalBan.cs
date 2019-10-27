@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Net;
 
 namespace BanSystem
 {
@@ -43,46 +45,46 @@ namespace BanSystem
                 Configuration.Instance.Proxy_Protection = false;
             }
             //Arguments = $@"/c dotnet E:\Users\Deniel\Source\Repos\SocketPractiseServer\SocketPractiseServer\bin\Debug\netcoreapp2.1\SocketPractiseServer.dll"
-            if (Configuration.Instance.Bot_Token != "" && Configuration.Instance.Bot_Enabled)
-            {
-                //run bot if sucess returned continue, if not UnloadPlugin()
-                OS os = GetOS();
-                ProcessStartInfo startInfo = new ProcessStartInfo();
-                if (os == OS.Windows)
-                {
-                    startInfo.FileName = "cmd";
-                    startInfo.Arguments = @"/c dotnet /Libraries/DiscordBot.dll";
-                    startInfo.WindowStyle = ProcessWindowStyle.Normal;
-                }
-                else if (os == OS.Linux)
-                {
-                    startInfo.FileName = "/bin/bash";
-                    startInfo.Arguments = "-c \" " + "gnome - terminal - x bash - ic 'dotnet $./Libraries/DiscordBot.dll; bash'" + " \"";
-                    //proc.StartInfo.Arguments = "-c \" " + "gnome - terminal - x bash - ic 'cd $HOME; ls; bash'" + " \"";
-                    startInfo.UseShellExecute = false;
-                    startInfo.RedirectStandardOutput = true;
+            //if (Configuration.Instance.Bot_Token != "" && Configuration.Instance.Bot_Enabled)
+            //{
+            //    //run bot if sucess returned continue, if not UnloadPlugin()
+            //    OS os = GetOS();
+            //    ProcessStartInfo startInfo = new ProcessStartInfo();
+            //    if (os == OS.Windows)
+            //    {
+            //        startInfo.FileName = "cmd";
+            //        startInfo.Arguments = @"/c dotnet /Libraries/DiscordBot.dll";
+            //        startInfo.WindowStyle = ProcessWindowStyle.Normal;
+            //    }
+            //    else if (os == OS.Linux)
+            //    {
+            //        startInfo.FileName = "/bin/bash";
+            //        startInfo.Arguments = "-c \" " + "gnome - terminal - x bash - ic 'dotnet $./Libraries/DiscordBot.dll; bash'" + " \"";
+            //        //proc.StartInfo.Arguments = "-c \" " + "gnome - terminal - x bash - ic 'cd $HOME; ls; bash'" + " \"";
+            //        startInfo.UseShellExecute = false;
+            //        startInfo.RedirectStandardOutput = true;
                     
-                    //while (!proc.StandardOutput.EndOfStream)
-                    //{
-                    //    Console.WriteLine(proc.StandardOutput.ReadLine());
-                    //}
-                }
-                else
-                {
-                    startInfo.FileName = "dotnet";
-                    startInfo.Arguments = @"/Libraries/DiscordBot.dll";
-                    startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                }
+            //        //while (!proc.StandardOutput.EndOfStream)
+            //        //{
+            //        //    Console.WriteLine(proc.StandardOutput.ReadLine());
+            //        //}
+            //    }
+            //    else
+            //    {
+            //        startInfo.FileName = "dotnet";
+            //        startInfo.Arguments = @"/Libraries/DiscordBot.dll";
+            //        startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            //    }
 
-                serverProcess.StartInfo = startInfo;
-                serverProcess.Start();
-                _botProcessID = serverProcess.Id;
-            }
-            else
-            {
-                Rocket.Core.Logging.Logger.LogWarning("[WARNING] Discord bot is DISABLED, check your config for correct token!");
-                Configuration.Instance.Bot_Enabled = false;
-            }
+            //    serverProcess.StartInfo = startInfo;
+            //    serverProcess.Start();
+            //    _botProcessID = serverProcess.Id;
+            //}
+            //else
+            //{
+            //    Rocket.Core.Logging.Logger.LogWarning("[WARNING] Discord bot is DISABLED, check your config for correct token!");
+            //    Configuration.Instance.Bot_Enabled = false;
+            //}
 
             Database = new DatabaseManager();
             UnturnedPermissions.OnJoinRequested += Events_OnJoinRequested;
@@ -90,13 +92,56 @@ namespace BanSystem
             Rocket.Core.Logging.Logger.Log($"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name} by M22 loaded!", ConsoleColor.Cyan);
         }
 
-
         protected override void Unload()
         {
             Process.GetProcessById(_botProcessID).CloseMainWindow();
             UnturnedPermissions.OnJoinRequested -= Events_OnJoinRequested;
             U.Events.OnPlayerConnected -= RocketServerEvents_OnPlayerConnected;
             //Rocket.Core.Logging.Logger.Log($"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name} by M22 loaded!", ConsoleColor.Cyan);
+        }
+
+        private void SendDiscord(string text2)
+        {
+            try
+            {
+                var moscowTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Russian Standard Time");
+                Field[] flist = new Field[] { new Field("Логи убийств", text2, false) };
+                var embed = new Embed()
+                {
+                    fields = flist,
+                    color = 0xff0000,
+                    footer = new Footer($"Сегодня в {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, moscowTimeZone)}")
+                };
+                var elist = new System.Collections.Generic.List<Embed>();
+                {
+                    elist.Add(embed);
+                }
+                ThreadPool.QueueUserWorkItem((i) =>
+                {
+                    try
+                    {
+                        SendMessageAsync(new DiscordWebhookMessage() { embeds = elist, username = "Сервер", avatar_url = "https://i.imgur.com/YQDOQ5W.png" }, Configuration.Instance.Webhook);
+                    }
+                    catch (Exception e)
+                    {
+                        Rocket.Core.Logging.Logger.Log(e);
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                Rocket.Core.Logging.Logger.Log(e);
+            }
+        }
+
+        private void SendMessageAsync(DiscordWebhookMessage msg, string url)
+        {
+            string json = JsonConvert.SerializeObject(msg);
+            using (WebClient wc = new WebClient())
+            {
+                wc.Headers.Set(HttpRequestHeader.ContentType, "application/json");
+                wc.UploadString(url, json);
+            }
         }
 
         //private void LaunchBotAsync()
