@@ -142,7 +142,7 @@ namespace BanSystem
                             return;
                     }
                 }
-                GlobalBan.Instance.BanDisconnect(targetPlayer.playerID.characterName, targetPlayer.playerID.steamID, ip, hwid, true, adminName, command.Length == 1 ? "" : command[1], command.Length == 1 || command.Length == 2 ? 0U : duration);
+                GlobalBan.Instance.BanDisconnect(targetPlayer.playerID.characterName.ToLower(), targetPlayer.playerID.steamID, ip, hwid, true, adminName, command.Length == 1 ? "" : command[1], command.Length == 1 || command.Length == 2 ? 0U : duration);
             }
             catch (System.Exception ex)
             {

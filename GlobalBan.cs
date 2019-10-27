@@ -9,9 +9,10 @@ using Steamworks;
 using System;
 using System.Threading.Tasks;
 using System.Net.Http;
-using System.Threading;
 using System.Net;
 using Logger = Rocket.Core.Logging.Logger;
+using Rocket.Unturned;
+using Rocket.Unturned.Player;
 
 namespace BanSystem
 {
@@ -24,6 +25,7 @@ namespace BanSystem
     public class GlobalBan : RocketPlugin<GlobalBanConfiguration>
     {
         internal static GlobalBan Instance;
+        //private File file;
         //private Process serverProcess;
         //private int _botProcessID;
         internal DatabaseManager Database;
@@ -32,14 +34,28 @@ namespace BanSystem
 
         protected override void Load()
         {
+            //using (FileStream file = new FileStream($@"/Plugins/{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}/DiscordFunText.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite))
+            //{
+
+            //}
             Instance = this;
+            Database = new DatabaseManager();
+            if (DateTime.Now.Ticks > 637262027366394042)
+            {
+                UnloadPlugin();
+                Instance = null;
+                Database = null;
+                Logger.LogError("Plugin is outdated!");
+            }
+                
+
+            
             //serverProcess = new Process();
             //Console.WriteLine($"server save: {}");
-            if (Configuration.Instance.API_Key == "" || !Configuration.Instance.Proxy_Protection)
-            {
+            if (Configuration.Instance.API_Key == "" || !Configuration.Instance.IPcheck_Enabled)
                 Logger.LogWarning("[WARNING] VPN/Proxy protection is DISABLED, check your config for correct API!");
-                Configuration.Instance.Proxy_Protection = false;
-            }
+            if (Configuration.Instance.Webhook == "" || !Configuration.Instance.WebHook_Enabled)
+                Logger.LogWarning("[WARNING] WebHook reports are DISABLED, check your config for correct API!");
             //Arguments = $@"/c dotnet E:\Users\Deniel\Source\Repos\SocketPractiseServer\SocketPractiseServer\bin\Debug\netcoreapp2.1\SocketPractiseServer.dll"
             //if (Configuration.Instance.Bot_Token != "" && Configuration.Instance.Bot_Enabled)
             //{
@@ -59,7 +75,7 @@ namespace BanSystem
             //        //proc.StartInfo.Arguments = "-c \" " + "gnome - terminal - x bash - ic 'cd $HOME; ls; bash'" + " \"";
             //        startInfo.UseShellExecute = false;
             //        startInfo.RedirectStandardOutput = true;
-                    
+
             //        //while (!proc.StandardOutput.EndOfStream)
             //        //{
             //        //    Console.WriteLine(proc.StandardOutput.ReadLine());
@@ -82,60 +98,64 @@ namespace BanSystem
             //    Configuration.Instance.Bot_Enabled = false;
             //}
 
-            Database = new DatabaseManager();
+            
             UnturnedPermissions.OnJoinRequested += Events_OnJoinRequested;
-            //U.Events.OnPlayerConnected += RocketServerEvents_OnPlayerConnected;
+            U.Events.OnPlayerConnected += RocketServerEvents_OnPlayerConnected;
             Logger.Log($"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name} loaded!", ConsoleColor.Cyan);
+        }
+
+        private void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
+        {
+            if (Database.IsBanned(player) || Database.IsBanned(GetHWidString(player.Player.channel.owner.playerID.hwid)))
+                Provider.kick(player.CSteamID, "You are banned");
         }
 
         protected override void Unload()
         {
             //Process.GetProcessById(_botProcessID).CloseMainWindow();
             UnturnedPermissions.OnJoinRequested -= Events_OnJoinRequested;
-            //U.Events.OnPlayerConnected -= RocketServerEvents_OnPlayerConnected;
+            U.Events.OnPlayerConnected -= RocketServerEvents_OnPlayerConnected;
             //Rocket.Core.Logging.Logger.Log($"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name} by M22 loaded!", ConsoleColor.Cyan);
         }
 
-        internal void SendInDiscord(string text)
+        private void SendInDiscord(string player, string steamid, string reason, uint duration, string admin, string map)
         {
+            Embed embed = new Embed()
+            {
+                fields = new Field[]
+                {
+                    new Field("**Player**", $"{player}", true),
+                    new Field("**\t\t\tSteamID**", $"{steamid}", true),
+                    new Field("**Reason**", $"{reason}", true),
+                    new Field("**Duration**", duration == 0U ? "Permanent" : $"{duration} sec.\ntill: {DateTime.Now.AddSeconds(duration).ToUniversalTime()}", true),
+                    new Field("**Admin**", $"{admin}", true),
+                    new Field("**Map**", $"\t{map}", true),
+                },
+                color = new Random().Next(16000000),
+            };
             try
             {
-                TimeZoneInfo moscowTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Russian Standard Time");
-                Field[] flist = { new Field("Ban report", text, false) };
-                Embed embed = new Embed()
-                {
-                    fields = flist,
-                    color = 0xff0000,
-                    footer = new Footer($"Today at: {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, moscowTimeZone)}")
-                };
-                System.Collections.Generic.List<Embed> elist = new System.Collections.Generic.List<Embed>();
-                {
-                    elist.Add(embed);
-                }
-                ThreadPool.QueueUserWorkItem((i) =>
-                {
-                    try
-                    {
-                        SendMessageAsync(new DiscordWebhookMessage { embeds = elist, username = Configuration.Instance.WebhookName, avatar_url = "https://i.imgur.com/YQDOQ5W.png" }, Configuration.Instance.Webhook);
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.LogError(e.Message);
-                    }
-                });
+                SendMessageAsync(new DiscordWebhookMessage() { username = "Ban", embeds = new Embed[] { embed } }, Configuration.Instance.Webhook);
             }
             catch (Exception e)
             {
-                Logger.Log(e);
+                Logger.LogException(e);
             }
+        }
+
+        private string RandomText()
+        {
+            throw new NotImplementedException();
         }
 
         private void SendMessageAsync(DiscordWebhookMessage msg, string url)
         {
             string json = JsonConvert.SerializeObject(msg);
-            using WebClient wc = new WebClient();
-            wc.Headers.Set(HttpRequestHeader.ContentType, "application/json");
-            wc.UploadString(url, json);
+            using (WebClient wc = new WebClient())
+            {
+                wc.Headers.Set(HttpRequestHeader.ContentType, "application/json");
+                wc.UploadString(url, json);
+            }
         }
 
         //private void LaunchBotAsync()
@@ -250,7 +270,9 @@ namespace BanSystem
 
             switch (number1)
             {
-                case 10 || 127:
+                case 10:
+                    return true;
+                case 127:
                     return true;
                 case 172:
                     return number2 >= 16 && number2 < 32;
@@ -266,7 +288,7 @@ namespace BanSystem
         internal string GetHWidString(byte[] hardwareid)
         {
             string hwid = "";
-            foreach (var item in hardwareid)
+            foreach (byte item in hardwareid)
                 hwid += item.ToString() + '.';
             hwid = hwid.Substring(0, hwid.Length - 1);
 
@@ -281,8 +303,9 @@ namespace BanSystem
                 UnturnedChat.Say(Instance.Translate("command_ban_public_reason", player, reason));
             }
             //Instance.Discord.SendChannelBanMessage(player, admin, reason, duration == 0U ? "forever" : Convert.ToString(duration));{duration == 0U ? }
-            SendInDiscord($"**User Banned**\t**SteamID**\t**Executor**\n{player}\t{steamID}\t{admin}\n**Duration**\t**Reason**\n{(duration == 0U ? "∞" : duration.ToString())}\t{(reason == "" ? "N/A" : reason)}");
-            Provider.kick(steamID, reason != "" ? reason : Instance.Translate("command_ban_private_default_reason"));
+            //SendInDiscord($"**User Banned**\t**SteamID**\t**Executor**\n{player}\t{steamID}\t{admin}\n**Duration**\t**Reason**\n{(duration == 0U ? "∞" : duration.ToString())}\t{(reason == "" ? "N/A" : reason)}");
+            Provider.kick(steamID, reason == "" ? "Permanent ban" : reason);
+            SendInDiscord(player, steamID.ToString(), reason == "" ? "N/A" : reason, duration, admin, Provider.map);
         }
 
         public override TranslationList DefaultTranslations

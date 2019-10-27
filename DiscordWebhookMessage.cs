@@ -1,78 +1,94 @@
-﻿using System.Collections.Generic;
-
-namespace BanSystem
+﻿public class DiscordWebhookMessage
 {
-    public class DiscordWebhookMessage
+    public string username;
+    public string avatar_url;
+    public Embed[] embeds;
+}
+
+public class Embed
+{
+    public Author author;
+    public string title;
+    public string url;
+    public string description;
+    public int color;
+    public Field[] fields;
+    public Thumbnail thumbnail;
+    public Image image;
+    public Footer footer;
+}
+
+public class Field
+{
+    public Field(string name, string value, bool inline = true)
     {
-        public string username { get; set; }
-        public string avatar_url { get; set; }
-        public string content { get; set; }
-        public List<Embed> embeds = new List<Embed>();
+        this.name = name;
+        this.value = value.ToString();
+        this.inline = inline;
     }
 
-    public class Embed
+    public string name;
+    public string value;
+    public bool inline;
+}
+
+public class Author
+{
+    public Author()
     {
-        public Author author { get; set; }
-        public string title { get; set; }
-        public string url { get; set; }
-        public string description { get; set; }
-        public int color { get; set; }
-        public Field[] fields { get; set; }
-        public Thumbnail thumbnail { get; set; }
-        public Image image { get; set; }
-        public Footer footer { get; set; }
+
+    }
+    public Author(string name, string url, string icon_url)
+    {
+        this.name = name;
+        this.url = url;
+        this.icon_url = icon_url;
+    }
+    public string name;
+    public string url;
+    public string icon_url;
+}
+
+public class Thumbnail
+{
+    public Thumbnail()
+    {
+
+    }
+    public Thumbnail(string url)
+    {
+        this.url = url;
     }
 
-    public class Author
+    public string url;
+}
+
+public class Image
+{
+    public Image()
     {
-        public string name { get; set; }
-        public string url { get; set; }
-        public string icon_url { get; set; }
+
+    }
+    public Image(string url)
+    {
+        this.url = url;
     }
 
-    public class Thumbnail
-    {
-        public Thumbnail(string url)
-        {
-            this.url = url;
-        }
+    public string url;
+}
 
-        public string url { get; set; }
+public class Footer
+{
+    public Footer()
+    {
+
+    }
+    public Footer(string text, string iconUrl)
+    {
+        this.text = text;
+        this.icon_url = iconUrl;
     }
 
-    public class Image
-    {
-        public Image(string url)
-        {
-            this.url = url;
-        }
-
-        public string url { get; set; }
-    }
-
-    public class Footer
-    {
-        public Footer(string text, string iconUrl = null)
-        {
-            this.text = text;
-            this.icon_url = iconUrl;
-        }
-
-        public string text { get; set; }
-        public string icon_url { get; set; }
-    }
-
-    public class Field
-    {
-        public Field(string name, object value, bool inline)
-        {
-            this.Name = name;
-            this.Value = value.ToString();
-            this.Inline = inline;
-        }
-
-        public string Name { get; set; }
-        public string Value { get; set; }
-        public bool Inline { get; set; }
-    }
+    public string text;
+    public string icon_url;
 }

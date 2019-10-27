@@ -1,5 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using Rocket.Core.Logging;
+using Rocket.Unturned.Player;
 using Steamworks;
 using System;
 using System.Text.RegularExpressions;
@@ -32,21 +33,46 @@ namespace BanSystem
             return connection;
         }
 
-        public bool IsBanned(CSteamID steamId)
+        public bool IsBanned(UnturnedPlayer player)
         {
             try
             {
                 MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
-                SteamGameServerNetworking.GetP2PSessionState(steamId, out P2PSessionState_t pConnectionState);
+                SteamGameServerNetworking.GetP2PSessionState(player.CSteamID, out P2PSessionState_t pConnectionState);
                 string ip = SDG.Unturned.Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
-                command.CommandText = "select 1 from `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` WHERE (`steamId` = '" + steamId.ToString() + "' AND (banDuration is null OR ((banDuration + UNIX_TIMESTAMP(banTime)) > UNIX_TIMESTAMP()))) OR `ip` = '" + ip + "';";
+                command.CommandText = "select 1 from `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` WHERE (`steamId` = '" + player.CSteamID.ToString() + "' AND (banDuration is null OR ((banDuration + UNIX_TIMESTAMP(banTime)) > UNIX_TIMESTAMP()))) OR `ip` = '" + ip + "' OR `charactername` = '" + player.CharacterName.ToLower() + "';";
                 string[] str = ip.Split('.');
                 byte.TryParse(str[0], out byte num1);
                 byte.TryParse(str[1], out byte num2);
                 connection.Open();
                 object result = command.ExecuteScalar();
-                if (result != null || GlobalBan.Instance.IsPrivateIP(num1, num2))
+                if (result != null)
+                    return true;
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return false;
+        }
+
+        public bool IsBanned(CSteamID steamID)
+        {
+            try
+            {
+                MySqlConnection connection = CreateConnection();
+                MySqlCommand command = connection.CreateCommand();
+                SteamGameServerNetworking.GetP2PSessionState(steamID, out P2PSessionState_t pConnectionState);
+                string ip = SDG.Unturned.Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
+                command.CommandText = "select 1 from `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` WHERE (`steamId` = '" + steamID.ToString() + "' AND (banDuration is null OR ((banDuration + UNIX_TIMESTAMP(banTime)) > UNIX_TIMESTAMP()))) OR `ip` = '" + ip + "';";
+                string[] str = ip.Split('.');
+                byte.TryParse(str[0], out byte num1);
+                byte.TryParse(str[1], out byte num2);
+                connection.Open();
+                object result = command.ExecuteScalar();
+                if (result != null)
                     return true;
                 connection.Close();
             }
