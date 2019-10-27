@@ -16,6 +16,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Net;
+using Logger = Rocket.Core.Logging.Logger;
 
 namespace BanSystem
 {
@@ -41,7 +42,7 @@ namespace BanSystem
             //Console.WriteLine($"server save: {}");
             if (Configuration.Instance.API_Key == "" || !Configuration.Instance.Proxy_Protection)
             {
-                Rocket.Core.Logging.Logger.LogWarning("[WARNING] VPN/Proxy protection is DISABLED, check your config for correct API!");
+                Logger.LogWarning("[WARNING] VPN/Proxy protection is DISABLED, check your config for correct API!");
                 Configuration.Instance.Proxy_Protection = false;
             }
             //Arguments = $@"/c dotnet E:\Users\Deniel\Source\Repos\SocketPractiseServer\SocketPractiseServer\bin\Debug\netcoreapp2.1\SocketPractiseServer.dll"
@@ -100,19 +101,19 @@ namespace BanSystem
             //Rocket.Core.Logging.Logger.Log($"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name} by M22 loaded!", ConsoleColor.Cyan);
         }
 
-        private void SendDiscord(string text2)
+        internal void SendInDiscord(string text)
         {
             try
             {
-                var moscowTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Russian Standard Time");
-                Field[] flist = new Field[] { new Field("Логи убийств", text2, false) };
-                var embed = new Embed()
+                TimeZoneInfo moscowTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Russian Standard Time");
+                Field[] flist = new Field[] { new Field("Ban report", text, false) };
+                Embed embed = new Embed()
                 {
                     fields = flist,
                     color = 0xff0000,
-                    footer = new Footer($"Сегодня в {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, moscowTimeZone)}")
+                    footer = new Footer($"Today at: {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, moscowTimeZone)}")
                 };
-                var elist = new System.Collections.Generic.List<Embed>();
+                System.Collections.Generic.List<Embed> elist = new System.Collections.Generic.List<Embed>();
                 {
                     elist.Add(embed);
                 }
@@ -120,17 +121,17 @@ namespace BanSystem
                 {
                     try
                     {
-                        SendMessageAsync(new DiscordWebhookMessage() { embeds = elist, username = "Сервер", avatar_url = "https://i.imgur.com/YQDOQ5W.png" }, Configuration.Instance.Webhook);
+                        SendMessageAsync(new DiscordWebhookMessage() { embeds = elist, username = Configuration.Instance.WebhookName, avatar_url = "https://i.imgur.com/YQDOQ5W.png" }, Configuration.Instance.Webhook);
                     }
                     catch (Exception e)
                     {
-                        Rocket.Core.Logging.Logger.Log(e);
+                        Logger.LogError(e.Message);
                     }
                 });
             }
             catch (Exception e)
             {
-                Rocket.Core.Logging.Logger.Log(e);
+                Logger.Log(e);
             }
         }
 
@@ -169,59 +170,80 @@ namespace BanSystem
         //}
 
 
-        private void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
-        {
-            SteamGameServerNetworking.GetP2PSessionState(player.CSteamID, out P2PSessionState_t pConnectionState);
-            string ip = Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
+        //private void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
+        //{
+        //    SteamGameServerNetworking.GetP2PSessionState(player.CSteamID, out P2PSessionState_t pConnectionState);
+        //    string ip = Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
 
-            Console.WriteLine($"connected ip: {ip}");
-            Console.Write("connected hwid: ");
-            foreach (var item in player.Player.channel.owner.playerID.hwid)
-            {
-                Console.Write($"{item}.");
-            }//player.CSteamID.ToString(), ip,
-            if (Database.IsBanned(GetHWidString(player.Player.channel.owner.playerID.hwid)))
-            {
-                Provider.kick(player.CSteamID, "");
-                return;
-            }
-            //Console.WriteLine("CONNECTED PLAYER IS NOT BANNED");
-            GetResponse(player.Player.channel.owner.playerID.characterName, player.Player.channel.owner.playerID.steamID, GetHWidString(player.Player.channel.owner.playerID.hwid), ip);
-        }
+        //    //Console.WriteLine($"connected ip: {ip}");
+        //    //Console.Write("connected hwid: ");
+        //    //foreach (var item in player.Player.channel.owner.playerID.hwid)
+        //    //{
+        //    //    Console.Write($"{item}.");
+        //    //}//player.CSteamID.ToString(), ip,
+        //    if (Database.IsBanned(GetHWidString(player.Player.channel.owner.playerID.hwid)))
+        //    {
+        //        Provider.kick(player.CSteamID, "");
+        //        return;
+        //    }
+        //    //Console.WriteLine("CONNECTED PLAYER IS NOT BANNED");
+        //    GetResponse(player.Player.channel.owner.playerID.characterName, player.Player.channel.owner.playerID.steamID, GetHWidString(player.Player.channel.owner.playerID.hwid), ip);
+        //}
 
-        private async void GetResponse(string player, CSteamID steamID, string hwid, string ip)
+        private async Task<bool> IsBadIP(CSteamID steamID)
         {
             using (HttpClient httpClient = new HttpClient())
             {
+                SteamGameServerNetworking.GetP2PSessionState(steamID, out P2PSessionState_t pConnectionState);
+                string ip = Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
                 using (HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), $"http://v2.api.iphub.info/ip/{ip}"))
                 {
-                    //request.Headers.TryAddWithoutValidation("X-Key", "NjE4NTpHNXZ1Z0ZaVkU3Mmc2SVJLN0dFWjRTWlVUYzJJRGQ2WQ==");
                     request.Headers.TryAddWithoutValidation("X-Key", $"{Instance.Configuration.Instance.API_Key}");
                     HttpResponseMessage response = await httpClient.SendAsync(request);
                     string json = await response.Content.ReadAsStringAsync();
                     ConnectedIP client = JsonConvert.DeserializeObject<ConnectedIP>(json);
-                    Console.WriteLine(json);
-                    //string[] str = json.Split(':');
-                    //string countryCode = str[2].Substring(1, 2);
-                    //string block = str[str.Length - 2].Substring(0, 1);
-                    Console.WriteLine();
-                    Console.WriteLine($"client.block: {client.block}, client.ip: {client.ip}");
-                    //string[] str = client.ip.Split('.');
-                    //byte.TryParse(str[0], out byte num1);
-                    //byte.TryParse(str[1], out byte num2);
-                    // || IsPrivateIP(num1, num2) || client.countryCode == "ZZ"
-                    if (client.block != 0)
-                    {
-                        BanDisconnect(player, steamID, ip, hwid, false, $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}", $"VPN/Proxy)", 0);
-                        //GlobalBan.Instance.Database.BanPlayer(player.Player.channel.owner.playerID.characterName, player.CSteamID.ToString(), ip, hwid, "Server", "", 0);//0=forever
-                        //UnturnedChat.Say(GlobalBan.Instance.Translate("command_ban_private", player.Player.channel.owner.playerID.characterName));
-                        //Provider.kick(player.CSteamID, GlobalBan.Instance.Translate("command_ban_private_default_reason"));
-                        Console.WriteLine();
-                        Console.WriteLine($"Player had Proxy or private IP, block: {client.block}, country code: {client.countryCode}");
-                    }
+                    string[] str = client.ip.Split('.');
+                    byte.TryParse(str[0], out byte num1);
+                    byte.TryParse(str[1], out byte num2);
+
+                    return client.block != 0 || client.countryCode == "ZZ" || IsPrivateIP(num1, num2);
                 }
             }
         }
+
+        //private async void GetResponse(string player, CSteamID steamID, string hwid, string ip)
+        //{
+        //    using (HttpClient httpClient = new HttpClient())
+        //    {
+        //        using (HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), $"http://v2.api.iphub.info/ip/{ip}"))
+        //        {
+        //            //request.Headers.TryAddWithoutValidation("X-Key", "NjE4NTpHNXZ1Z0ZaVkU3Mmc2SVJLN0dFWjRTWlVUYzJJRGQ2WQ==");
+        //            request.Headers.TryAddWithoutValidation("X-Key", $"{Instance.Configuration.Instance.API_Key}");
+        //            HttpResponseMessage response = await httpClient.SendAsync(request);
+        //            string json = await response.Content.ReadAsStringAsync();
+        //            ConnectedIP client = JsonConvert.DeserializeObject<ConnectedIP>(json);
+        //            //Console.WriteLine(json);
+        //            //string[] str = json.Split(':');
+        //            //string countryCode = str[2].Substring(1, 2);
+        //            //string block = str[str.Length - 2].Substring(0, 1);
+        //            //Console.WriteLine();
+        //            //Console.WriteLine($"client.block: {client.block}, client.ip: {client.ip}");
+        //            //string[] str = client.ip.Split('.');
+        //            //byte.TryParse(str[0], out byte num1);
+        //            //byte.TryParse(str[1], out byte num2);
+        //            // || IsPrivateIP(num1, num2) || client.countryCode == "ZZ"
+        //            if (client.block != 0)
+        //            {
+        //                BanDisconnect(player, steamID, ip, hwid, false, $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}", $"VPN/Proxy)", 0);
+        //                //GlobalBan.Instance.Database.BanPlayer(player.Player.channel.owner.playerID.characterName, player.CSteamID.ToString(), ip, hwid, "Server", "", 0);//0=forever
+        //                //UnturnedChat.Say(GlobalBan.Instance.Translate("command_ban_private", player.Player.channel.owner.playerID.characterName));
+        //                //Provider.kick(player.CSteamID, GlobalBan.Instance.Translate("command_ban_private_default_reason"));
+        //                Console.WriteLine();
+        //                Console.WriteLine($"Player had Proxy or private IP, block: {client.block}, country code: {client.countryCode}");
+        //            }
+        //        }
+        //    }
+        //}
 
         internal bool IsPrivateIP(byte number1, byte number2)
         {
@@ -334,10 +356,10 @@ namespace BanSystem
         {
             try
             {
-                if (Database.IsBanned(player))
+                if (IsBadIP(player).Result || Database.IsBanned(player))
                 {
                     rejection = ESteamRejection.AUTH_PUB_BAN;
-                    //Console.WriteLine($"Tried to join: {player}");
+                    Logger.Log("Rejected VPN connection");
                 }
             }
             catch (Exception e)
@@ -347,43 +369,43 @@ namespace BanSystem
         }
 
 
-        [DllImport("libc")]
-        static extern int Uname(IntPtr buf);
+        //[DllImport("libc")]
+        //static extern int Uname(IntPtr buf);
 
-        private OS GetOS()
-        {
-            IntPtr buf = IntPtr.Zero;
-            try
-            {
-                buf = Marshal.AllocHGlobal(8192);
-                // This is a hacktastic way of getting sysname from uname ()
-                if (Uname(buf) == 0)
-                {
-                    string os = Marshal.PtrToStringAnsi(buf);
-                    if (os == "Darwin")
-                        return OS.Mac;
-                    if (os == "Linux")
-                        return OS.Linux;
-                    if (Path.DirectorySeparatorChar == '\\')
-                        return OS.Windows;
-                }
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
-            finally
-            {
-                if (buf != IntPtr.Zero)
-                    Marshal.FreeHGlobal(buf);
-            }
+        //private OS GetOS()
+        //{
+        //    IntPtr buf = IntPtr.Zero;
+        //    try
+        //    {
+        //        buf = Marshal.AllocHGlobal(8192);
+        //        // This is a hacktastic way of getting sysname from uname ()
+        //        if (Uname(buf) == 0)
+        //        {
+        //            string os = Marshal.PtrToStringAnsi(buf);
+        //            if (os == "Darwin")
+        //                return OS.Mac;
+        //            if (os == "Linux")
+        //                return OS.Linux;
+        //            if (Path.DirectorySeparatorChar == '\\')
+        //                return OS.Windows;
+        //        }
+        //    }
+        //    catch(Exception e)
+        //    {
+        //        Console.WriteLine(e.Message);
+        //    }
+        //    finally
+        //    {
+        //        if (buf != IntPtr.Zero)
+        //            Marshal.FreeHGlobal(buf);
+        //    }
 
-            throw new Exception("Unable to define Operating System");
-        }
+        //    throw new Exception("Unable to define Operating System");
+        //}
 
-        private bool IsWin() 
-        {
-            return Path.DirectorySeparatorChar == '\\';
-        }
+        //private bool IsWin() 
+        //{
+        //    return Path.DirectorySeparatorChar == '\\';
+        //}
     }
 }

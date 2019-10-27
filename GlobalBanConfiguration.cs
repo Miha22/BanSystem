@@ -5,11 +5,13 @@ namespace BanSystem
     public class GlobalBanConfiguration : IRocketPluginConfiguration
     {
         public bool Proxy_Protection;
-        public int Socket_Port;
+        //public int Socket_Port;
         public string API_Key;
-        public bool Bot_Enabled;
-        public string Bot_Token;
-        public string Cmd_Prefix;
+        // public bool Bot_Enabled;
+        //public string Bot_Token;
+        //public string Cmd_Prefix;
+        public string Webhook;
+        public string WebhookName;
         //public Discord.Color Discord_Ban_Color;
         public string DatabaseAddress;
         public string DatabaseUsername;
@@ -23,7 +25,8 @@ namespace BanSystem
         public void LoadDefaults()
         {
             Proxy_Protection = false;
-            Bot_Enabled = false;
+            Webhook = "https://discordapp.com/api/webhooks/617201018811318277/u2RV4vbtI3_r4k0mHMjfmGx_UaSt65s--m6ExTDEGEEgW0gtcsQyWlACxYLMZXAOmlEt"
+            //Bot_Enabled = false;
             DatabaseAddress = "localhost";
             DatabaseUsername = "unturned";
             DatabasePassword = "password";
@@ -31,13 +34,14 @@ namespace BanSystem
             KickInterval = 10;
             DatabaseTableName = "banlist";
             DatabasePort = 3306;
+            WebhookName = "Gay";
             //KickInsteadReject = false;
             API_Key = "NjE4NTpHNXZ1Z0ZaVkU3Mmc2SVJLN0dFWjRTWlVUYzJJRGQ2WQ==";
-            Bot_Token = "";
-            Cmd_Prefix = "$";
+            //Bot_Token = "";
+            //Cmd_Prefix = "$";
             //Discord_Ban_Color = Discord.Color.Default;
             //Discord_Bot_Enabled = true;
-            Socket_Port = 18000;
+            //Socket_Port = 18000;
         }
     }
 }

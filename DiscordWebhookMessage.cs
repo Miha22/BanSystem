@@ -66,13 +66,13 @@ namespace BanSystem
     {
         public Field(string name, object value, bool inline)
         {
-            this.name = name;
-            this.value = value.ToString();
-            this.inline = inline;
+            this.Name = name;
+            this.Value = value.ToString();
+            this.Inline = inline;
         }
 
-        public string name { get; set; }
-        public string value { get; set; }
-        public bool inline { get; set; }
+        public string Name { get; set; }
+        public string Value { get; set; }
+        public bool Inline { get; set; }
     }
 }
