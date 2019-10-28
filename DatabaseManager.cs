@@ -39,16 +39,16 @@ namespace BanSystem
             {
                 MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
-                SteamGameServerNetworking.GetP2PSessionState(player.CSteamID, out P2PSessionState_t pConnectionState);
-                string ip = SDG.Unturned.Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
-                command.CommandText = "select 1 from `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` WHERE (`steamId` = '" + player.CSteamID.ToString() + "' AND (banDuration is null OR ((banDuration + UNIX_TIMESTAMP(banTime)) > UNIX_TIMESTAMP()))) OR `ip` = '" + ip + "' OR `charactername` = '" + player.CharacterName.ToLower() + "';";
-                string[] str = ip.Split('.');
-                byte.TryParse(str[0], out byte num1);
-                byte.TryParse(str[1], out byte num2);
+                string hwid = GlobalBan.Instance.GetHWidString(player.Player.channel.owner.playerID.hwid);
+                command.CommandText = "select 1 from `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` WHERE banDuration is null OR ((banDuration + UNIX_TIMESTAMP(banTime)) > UNIX_TIMESTAMP()) OR `hwid` = '" + hwid + "' OR `charactername` = '" + player.CharacterName.ToLower() + "';";
                 connection.Open();
                 object result = command.ExecuteScalar();
                 if (result != null)
+                {
+                    //Console.WriteLine(result);
                     return true;
+                }
+                    
                 connection.Close();
             }
             catch (Exception ex)
@@ -57,7 +57,7 @@ namespace BanSystem
             }
             return false;
         }
-
+        //UPDATE `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` SET `charactername`= '" + player.CharacterName.ToLower() + "' WHERE  `id`=1;
         public bool IsBanned(CSteamID steamID)
         {
             try
@@ -67,9 +67,6 @@ namespace BanSystem
                 SteamGameServerNetworking.GetP2PSessionState(steamID, out P2PSessionState_t pConnectionState);
                 string ip = SDG.Unturned.Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
                 command.CommandText = "select 1 from `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` WHERE (`steamId` = '" + steamID.ToString() + "' AND (banDuration is null OR ((banDuration + UNIX_TIMESTAMP(banTime)) > UNIX_TIMESTAMP()))) OR `ip` = '" + ip + "';";
-                string[] str = ip.Split('.');
-                byte.TryParse(str[0], out byte num1);
-                byte.TryParse(str[1], out byte num2);
                 connection.Open();
                 object result = command.ExecuteScalar();
                 if (result != null)
@@ -83,29 +80,31 @@ namespace BanSystem
             return false;
         }
 
-        public bool IsBanned(string hwid)
-        {
-            try
-            {
-                MySqlConnection connection = CreateConnection();
-                MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "select 1 from `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` WHERE `hwid` = '" + hwid + "';";
-                connection.Open();
-                object result = command.ExecuteScalar();
-                //Console.WriteLine();
-                //Console.WriteLine($"result null?: {result == null}");
-                if (result != null) 
-                    return true;
-                connection.Close();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogException(ex);
-            }
-            return false;
-        }
+        
+        //public bool IsBanned(string hwid)
+        //{
+        //    try
+        //    {
+        //        MySqlConnection connection = CreateConnection();
+        //        MySqlCommand command = connection.CreateCommand();
+        //        command.CommandText = "select 1 from `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` WHERE `hwid` = '" + hwid + "';";
+        //        connection.Open();
+        //        object result = command.ExecuteScalar();
+        //        //Console.WriteLine();
+        //        //Console.WriteLine($"result null?: {result == null}");
+        //        if (result != null) 
+        //            return true;
+        //        connection.Close();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Logger.LogException(ex);
+        //    }
+        //    return false;
+        //}
 
-        public class Ban{
+        public class Ban
+        {
             public int Duration;
             public DateTime Time;
             public string Admin;

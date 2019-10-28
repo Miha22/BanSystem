@@ -40,7 +40,7 @@ namespace BanSystem
         {
             get
             {
-                return new List<string>() { "infinitykill.ban" };
+                return new List<string>() { "bansystem.ban" };
             }
         }
         //curl http://v2.api.iphub.info/ip/194.47.41.154 -H "X-Key: NjE4NTpHNXZ1Z0ZaVkU3Mmc2SVJLN0dFWjRTWlVUYzJJRGQ2WQ=="

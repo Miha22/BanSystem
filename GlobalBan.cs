@@ -106,7 +106,8 @@ namespace BanSystem
 
         private void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
         {
-            if (Database.IsBanned(player) || Database.IsBanned(GetHWidString(player.Player.channel.owner.playerID.hwid)))
+            Console.WriteLine("REJECTED ON SECOND LAYER");
+            if (Database.IsBanned(player))
                 Provider.kick(player.CSteamID, "You are banned");
         }
 
@@ -299,11 +300,7 @@ namespace BanSystem
         {
             Instance.Database.BanPlayer(player, steamID.ToString(), ip, hwid, admin, reason, duration);//0=forever
             if (publicsay)
-            {
                 UnturnedChat.Say(Instance.Translate("command_ban_public_reason", player, reason));
-            }
-            //Instance.Discord.SendChannelBanMessage(player, admin, reason, duration == 0U ? "forever" : Convert.ToString(duration));{duration == 0U ? }
-            //SendInDiscord($"**User Banned**\t**SteamID**\t**Executor**\n{player}\t{steamID}\t{admin}\n**Duration**\t**Reason**\n{(duration == 0U ? "∞" : duration.ToString())}\t{(reason == "" ? "N/A" : reason)}");
             Provider.kick(steamID, reason == "" ? "Permanent ban" : reason);
             SendInDiscord(player, steamID.ToString(), reason == "" ? "N/A" : reason, duration, admin, Provider.map);
         }
