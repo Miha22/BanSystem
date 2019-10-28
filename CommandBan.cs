@@ -9,6 +9,33 @@ using Logger = Rocket.Core.Logging.Logger;
 
 namespace BanSystem
 {
+    //public class Command : IRocketCommand
+    //{
+    //    public AllowedCaller AllowedCaller => AllowedCaller.Both;
+
+    //    public string Name => "gg";
+
+    //    public string Help => "";
+
+    //    public string Syntax => "";
+
+    //    public List<string> Aliases => new List<string>();
+
+    //    public List<string> Permissions => new List<string>();
+
+    //    public void Execute(IRocketPlayer caller, string[] command)
+    //    {
+    //        System.Console.WriteLine(caller);
+    //        System.Console.WriteLine(caller.Id);
+    //        System.Console.WriteLine(caller.DisplayName);
+    //        System.Console.WriteLine(caller.IsAdmin);
+    //        Rocket.API.ConsolePlayer
+    //        Console
+    //        Console
+    //        True
+    //    }
+    //}
+
     public class CommandBan : IRocketCommand
     {
         public string Help
@@ -116,15 +143,16 @@ namespace BanSystem
                 //    steamid = otherPlayer.CSteamID;
                 //    charactername = otherPlayer.CharacterName;
                 //}
-
-
-                string adminName = caller == null ? "Console" : caller.DisplayName;
-                uint duration = 0;
+                string reason = command.Length == 1 ? "N/A" : command[1];
+                uint duration = 0U;
 
                 if (command.Length == 3 && !uint.TryParse(command[2], out duration))
                 {
                     switch (command[2].ToLower())
                     {
+                        case "hour":
+                            duration = 3600;
+                            break;
                         case "day":
                             duration = 86400;
                             break;
@@ -138,11 +166,29 @@ namespace BanSystem
                             duration = 31536000;
                             break;
                         default:
-                            UnturnedChat.Say(caller, "Unrecognized provided ban time");
+                            UnturnedChat.Say(caller, "Unabled to ban player: Invalid ban time", Color.red);
                             return;
                     }
                 }
-                GlobalBan.Instance.BanDisconnect(targetPlayer.playerID.characterName, targetPlayer.playerID.steamID, ip, hwid, true, adminName, command.Length == 1 ? "" : command[1], command.Length == 1 || command.Length == 2 ? 0U : duration);
+                //GlobalBan.Instance.BanDisconnect(targetPlayer.playerID.characterName, targetPlayer.playerID.steamID, ip, hwid, true, caller.DisplayName, command.Length == 1 ? "" : command[1], command.Length == 1 || command.Length == 2 ? 0U : duration);
+                
+                GlobalBan.Instance.Database.BanPlayer(targetPlayer.playerID.characterName.ToLower(), targetPlayer.playerID.steamID.ToString(), ip, hwid, caller.DisplayName, reason, duration);//0=forever
+                Provider.kick(targetPlayer.playerID.steamID, reason);
+                UnturnedChat.Say(GlobalBan.Instance.Translate("command_ban_public_reason", targetPlayer.playerID.characterName, reason));
+                Embed embed = new Embed()
+                {
+                    fields = new Field[]
+                    {
+                        new Field("**Player**", targetPlayer.playerID.characterName, true),
+                        new Field("**\t\t\tSteamID**", targetPlayer.playerID.steamID.ToString(), true),
+                        new Field("**Reason**", reason, true),
+                        new Field("**Duration**", duration == 0U ? "Permanent" : $"{duration} sec.\ntill: {System.DateTime.Now.AddSeconds(duration).ToUniversalTime()}", true),
+                        new Field("**Admin**", caller.DisplayName, true),
+                        new Field("**Map**", $"\t{Provider.map}", true),
+                    },
+                    color = new System.Random().Next(16000000)
+                };
+                GlobalBan.Instance.SendInDiscord(embed, "Ban");
             }
             catch (System.Exception ex)
             {

@@ -119,24 +119,11 @@ namespace BanSystem
             //Rocket.Core.Logging.Logger.Log($"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name} by M22 loaded!", ConsoleColor.Cyan);
         }
 
-        private void SendInDiscord(string player, string steamid, string reason, uint duration, string admin, string map)
+        internal void SendInDiscord(Embed embed, string username)
         {
-            Embed embed = new Embed()
-            {
-                fields = new Field[]
-                {
-                    new Field("**Player**", $"{player}", true),
-                    new Field("**\t\t\tSteamID**", $"{steamid}", true),
-                    new Field("**Reason**", $"{reason}", true),
-                    new Field("**Duration**", duration == 0U ? "Permanent" : $"{duration} sec.\ntill: {DateTime.Now.AddSeconds(duration).ToUniversalTime()}", true),
-                    new Field("**Admin**", $"{admin}", true),
-                    new Field("**Map**", $"\t{map}", true),
-                },
-                color = new Random().Next(16000000),
-            };
             try
             {
-                SendMessageAsync(new DiscordWebhookMessage() { username = "Ban", embeds = new Embed[] { embed } }, Configuration.Instance.Webhook);
+                SendMessageAsync(new DiscordWebhookMessage() { username = username, embeds = new Embed[] { embed } }, Configuration.Instance.Webhook);
             }
             catch (Exception e)
             {
@@ -296,14 +283,14 @@ namespace BanSystem
             return hwid;
         }
 
-        internal void BanDisconnect(string player, CSteamID steamID, string ip, string hwid, bool publicsay, string admin, string reason, uint duration)
-        {
-            Instance.Database.BanPlayer(player.ToLower(), steamID.ToString(), ip, hwid, admin, reason, duration);//0=forever
-            if (publicsay)
-                UnturnedChat.Say(Instance.Translate("command_ban_public_reason", player, reason));
-            Provider.kick(steamID, reason == "" ? "Permanent ban" : reason);
-            SendInDiscord(player, steamID.ToString(), reason == "" ? "N/A" : reason, duration, admin, Provider.map);
-        }
+        //internal void BanDisconnect(string player, CSteamID steamID, string ip, string hwid, bool publicsay, string admin, string reason, uint duration)
+        //{
+        //    Instance.Database.BanPlayer(player.ToLower(), steamID.ToString(), ip, hwid, admin, reason, duration);//0=forever
+        //    if (publicsay)
+        //        UnturnedChat.Say(Instance.Translate("command_ban_public_reason", player, reason));
+        //    Provider.kick(steamID, reason == "" ? "Permanent ban" : reason);
+        //    SendInDiscord(player, steamID.ToString(), reason == "" ? "N/A" : reason, duration, admin, Provider.map);
+        //}
 
         public override TranslationList DefaultTranslations
         {

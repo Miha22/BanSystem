@@ -21,7 +21,7 @@ namespace BanSystem
 
         public string Syntax
         {
-            get { return "<player>"; }
+            get { return "/unban [player]\n/unban [steamid]"; }
         }
 
         public List<string> Aliases
@@ -38,7 +38,7 @@ namespace BanSystem
         {
             get
             {
-                return new List<string>() { "globalban.unban" };
+                return new List<string>() { "bansystem.unban" };
             }
         }
         internal static CommandUnban Instance;
@@ -52,26 +52,27 @@ namespace BanSystem
         {
             if (command.Length != 1)
             {
-                if (caller == null)
-                    GlobalBan.Instance.Discord.SendEmbedError("Invalid command usage, you must not have any parameters, but only player name");
-                else
-                    UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_invalid_parameter"));
+                UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_invalid_parameter") + $" Correct usage: {Syntax}");
                 return;
             }
-
             DatabaseManager.UnbanResult name = GlobalBan.Instance.Database.UnbanPlayer(command[0]);
-            if (!SteamBlacklist.unban(new CSteamID(name.Id)) && string.IsNullOrEmpty(name.Name))
+            if (!SteamBlacklist.unban(new CSteamID(ulong.Parse(name.Id))) || string.IsNullOrEmpty(name.Name))
             {
-                if (caller == null)
-                    GlobalBan.Instance.Discord.SendEmbedError($"Failed to find player called: {command[0]}");
-                else
-                    UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_player_not_found"));
+                UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_player_not_found"));
                 return;
             }
-            if (caller == null)
-                GlobalBan.Instance.Discord.SendChannelUnbanMessage($"The player " + name.Name + " was unbanned");
-            else
-                UnturnedChat.Say("The player " + name.Name + " was unbanned");
+            UnturnedChat.Say($"The player {name.Name} was unbanned by {caller.DisplayName}");
+            Embed embed = new Embed()
+            {
+                fields = new Field[]
+                    {
+                        new Field("**Player**", command[0], true),
+                        new Field("**SteamID**", name.Id.ToString(), true),
+                        new Field("**Admin**", caller.DisplayName, true)
+                    },
+                color = new Random().Next(16000000)
+            };
+            GlobalBan.Instance.SendInDiscord(embed, "Unban");
         }
     }
 }

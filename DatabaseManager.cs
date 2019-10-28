@@ -191,7 +191,7 @@ namespace BanSystem
         }
 
         public class UnbanResult {
-            public ulong Id;
+            public string Id;
             public string Name;
         }
 
@@ -208,12 +208,14 @@ namespace BanSystem
                 MySqlDataReader reader = command.ExecuteReader();
                 if (reader.Read())
                 {
-                    ulong steamId = reader.GetUInt64(0);
+                    //ulong steamId = reader.GetUInt64(0);
+                    string steamId = reader.GetString(0);
                     string charactername = reader.GetString(1);
                     connection.Close();
                     command = connection.CreateCommand();
                     command.Parameters.AddWithValue("@steamId", steamId);
-                    command.CommandText = "delete from `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` where `steamId` = @steamId;";
+                    command.Parameters.AddWithValue("@charactername", charactername);
+                    command.CommandText = "delete from `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` where `steamId` = @steamId or `charactername` = @charactername;";
                     connection.Open();
                     command.ExecuteNonQuery();
                     connection.Close();
