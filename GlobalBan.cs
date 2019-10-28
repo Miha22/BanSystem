@@ -298,7 +298,7 @@ namespace BanSystem
 
         internal void BanDisconnect(string player, CSteamID steamID, string ip, string hwid, bool publicsay, string admin, string reason, uint duration)
         {
-            Instance.Database.BanPlayer(player, steamID.ToString(), ip, hwid, admin, reason, duration);//0=forever
+            Instance.Database.BanPlayer(player.ToLower(), steamID.ToString(), ip, hwid, admin, reason, duration);//0=forever
             if (publicsay)
                 UnturnedChat.Say(Instance.Translate("command_ban_public_reason", player, reason));
             Provider.kick(steamID, reason == "" ? "Permanent ban" : reason);
