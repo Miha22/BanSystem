@@ -13,6 +13,7 @@ using System.Net;
 using Logger = Rocket.Core.Logging.Logger;
 using Rocket.Unturned;
 using Rocket.Unturned.Player;
+using MySql.Data.MySqlClient;
 
 namespace BanSystem
 {
@@ -29,16 +30,14 @@ namespace BanSystem
         //private Process serverProcess;
         //private int _botProcessID;
         internal DatabaseManager Database;
+        internal int UTCoffset { get; private set; }
 
         //public static Dictionary<CSteamID, string> Players = new Dictionary<CSteamID, string>();
 
         protected override void Load()
         {
-            //using (FileStream file = new FileStream($@"/Plugins/{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}/DiscordFunText.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite))
-            //{
-
-            //}
             Instance = this;
+            UTCoffset = (int)Math.Ceiling((DateTime.Now - DateTime.UtcNow).TotalHours);
             Database = new DatabaseManager();
             if (DateTime.Now.Ticks > 637262027366394042)
             {
@@ -106,9 +105,9 @@ namespace BanSystem
 
         private void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
         {
-            Console.WriteLine("REJECTED ON SECOND LAYER");
-            if (Database.IsBanned(player))
-                Provider.kick(player.CSteamID, "You are banned");
+            //Console.WriteLine("REJECTED ON SECOND LAYER");
+            if (Database.IsBanned(player, out DateTime date))
+                Provider.kick(player.CSteamID, $"You are banned till: {date} UTC");
         }
 
         protected override void Unload()

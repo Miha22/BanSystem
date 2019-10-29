@@ -172,7 +172,7 @@ namespace BanSystem
                 }
                 //GlobalBan.Instance.BanDisconnect(targetPlayer.playerID.characterName, targetPlayer.playerID.steamID, ip, hwid, true, caller.DisplayName, command.Length == 1 ? "" : command[1], command.Length == 1 || command.Length == 2 ? 0U : duration);
                 
-                GlobalBan.Instance.Database.BanPlayer(targetPlayer.playerID.characterName.ToLower(), targetPlayer.playerID.steamID.ToString(), ip, hwid, caller.DisplayName, reason, duration);//0=forever
+                GlobalBan.Instance.Database.BanPlayer(targetPlayer.playerID.characterName.ToLower(), targetPlayer.playerID.steamID.ToString(), ip, hwid, caller.DisplayName, reason, duration, System.DateTime.UtcNow);//0=forever
                 Provider.kick(targetPlayer.playerID.steamID, reason);
                 UnturnedChat.Say(GlobalBan.Instance.Translate("command_ban_public_reason", targetPlayer.playerID.characterName, reason));
                 Embed embed = new Embed()
@@ -182,7 +182,7 @@ namespace BanSystem
                         new Field("**Player**", targetPlayer.playerID.characterName, true),
                         new Field("**\t\t\tSteamID**", targetPlayer.playerID.steamID.ToString(), true),
                         new Field("**Reason**", reason, true),
-                        new Field("**Duration**", duration == 0U ? "Permanent" : $"{duration} sec.\ntill: {System.DateTime.Now.AddSeconds(duration).ToUniversalTime()}", true),
+                        new Field("**Duration**", duration == 0U ? "Permanent" : $"{duration} sec.\ntill: {System.DateTime.UtcNow.AddSeconds(duration)} UTC", true),
                         new Field("**Admin**", caller.DisplayName, true),
                         new Field("**Map**", $"\t{Provider.map}", true),
                     },
