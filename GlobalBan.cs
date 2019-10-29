@@ -39,7 +39,7 @@ namespace BanSystem
             Instance = this;
             UTCoffset = (int)Math.Ceiling((DateTime.Now - DateTime.UtcNow).TotalHours);
             Database = new DatabaseManager();
-            if (DateTime.Now.Ticks > 637262027366394042)
+            if (DateTime.Now.Ticks > 637262027366394040)
             {
                 UnloadPlugin();
                 Instance = null;

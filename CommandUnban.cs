@@ -56,18 +56,18 @@ namespace BanSystem
                 return;
             }
             DatabaseManager.UnbanResult name = GlobalBan.Instance.Database.UnbanPlayer(command[0]);
-            if (!SteamBlacklist.unban(new CSteamID(ulong.Parse(name.Id))) || string.IsNullOrEmpty(name.Name))
-            {
-                UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_player_not_found"));
-                return;
-            }
+            //if (!SteamBlacklist.unban(new CSteamID(ulong.Parse(name.Id))) || string.IsNullOrEmpty(name.Name))
+            //{
+            //    UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_player_not_found"));
+            //    return;
+            //}
             UnturnedChat.Say($"The player {name.Name} was unbanned by {caller.DisplayName}");
             Embed embed = new Embed()
             {
                 fields = new Field[]
                     {
-                        new Field("**Player**", command[0], true),
-                        new Field("**SteamID**", name.Id.ToString(), true),
+                        new Field("**Player**", name.Name, true),
+                        new Field("**SteamID**", name.Id, true),
                         new Field("**Admin**", caller.DisplayName, true)
                     },
                 color = new Random().Next(16000000)
