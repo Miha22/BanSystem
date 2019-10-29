@@ -12,7 +12,7 @@ namespace BanSystem
         //public string Bot_Token;
         //public string Cmd_Prefix;
         public string Webhook;
-        public string WebhookName;
+        //public string WebhookName;
         //public Discord.Color Discord_Ban_Color;
         public string DatabaseAddress;
         public string DatabaseUsername;
@@ -36,7 +36,7 @@ namespace BanSystem
            //KickInterval = 10;
             DatabaseTableName = "bansystem.banlist";
             DatabasePort = 3306;
-            WebhookName = "Ban";
+            //WebhookName = "Ban";
             //KickInsteadReject = false;
             API_Key = "NjE4NTpHNXZ1Z0ZaVkU3Mmc2SVJLN0dFWjRTWlVUYzJJRGQ2WQ==";
             //Bot_Token = "";
