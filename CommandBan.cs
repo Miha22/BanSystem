@@ -1,5 +1,4 @@
 ﻿using Rocket.API;
-using Rocket.Core.Logging;
 using Rocket.Unturned.Chat;
 using SDG.Unturned;
 using Steamworks;
@@ -9,32 +8,6 @@ using Logger = Rocket.Core.Logging.Logger;
 
 namespace BanSystem
 {
-    //public class Command : IRocketCommand
-    //{
-    //    public AllowedCaller AllowedCaller => AllowedCaller.Both;
-
-    //    public string Name => "gg";
-
-    //    public string Help => "";
-
-    //    public string Syntax => "";
-
-    //    public List<string> Aliases => new List<string>();
-
-    //    public List<string> Permissions => new List<string>();
-
-    //    public void Execute(IRocketPlayer caller, string[] command)
-    //    {
-    //        System.Console.WriteLine(caller);
-    //        System.Console.WriteLine(caller.Id);
-    //        System.Console.WriteLine(caller.DisplayName);
-    //        System.Console.WriteLine(caller.IsAdmin);
-    //        Rocket.API.ConsolePlayer
-    //        Console
-    //        Console
-    //        True
-    //    }
-    //}
 
     public class CommandBan : IRocketCommand
     {

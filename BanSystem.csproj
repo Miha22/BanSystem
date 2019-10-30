@@ -87,6 +87,7 @@
     <Compile Include="GlobalBan.cs" />
     <Compile Include="GlobalBanConfiguration.cs" />
     <Compile Include="Client.cs" />
+    <Compile Include="CommandGetBan.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
