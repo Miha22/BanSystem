@@ -14,12 +14,6 @@ using System.IO;
 
 namespace BanSystem
 {
-    //enum OS
-    //{
-    //    Windows,
-    //    Mac,
-    //    Linux
-    //}
     public class GlobalBan : RocketPlugin<GlobalBanConfiguration>
     {
         internal static GlobalBan Instance;
@@ -43,14 +37,12 @@ namespace BanSystem
                 Database = null;
                 Logger.LogError("Plugin is outdated!");
             }
-                
 
-            
             //serverProcess = new Process();
             //Console.WriteLine($"server save: {}");
-            if (Configuration.Instance.API_Key == "" || !Configuration.Instance.IPcheck_Enabled)
+            if (Configuration.Instance.API_Key == "")
                 Logger.LogWarning("[WARNING] VPN/Proxy protection is DISABLED, check your config for correct API!");
-            if (Configuration.Instance.Webhook == "" || !Configuration.Instance.WebHook_Enabled)
+            if (Configuration.Instance.Webhook == "")
                 Logger.LogWarning("[WARNING] WebHook reports are DISABLED, check your config for correct API!");
             //Arguments = $@"/c dotnet E:\Users\Deniel\Source\Repos\SocketPractiseServer\SocketPractiseServer\bin\Debug\netcoreapp2.1\SocketPractiseServer.dll"
             //if (Configuration.Instance.Bot_Token != "" && Configuration.Instance.Bot_Enabled)
@@ -197,9 +189,9 @@ namespace BanSystem
                     string[] str = client.ip.Split('.');
                     byte.TryParse(str[0], out byte num1);
                     byte.TryParse(str[1], out byte num2);
-                    Console.WriteLine($"block: {client.block}");
-                    Console.WriteLine($"countryCode: {client.countryCode}");
-                    Console.WriteLine($"IsPrivateIP: {IsPrivateIP(num1, num2)}");
+                    //Console.WriteLine($"block: {client.block}");
+                    //Console.WriteLine($"countryCode: {client.countryCode}");
+                    //Console.WriteLine($"IsPrivateIP: {IsPrivateIP(num1, num2)}");
 
                     return client.block != 0 || client.countryCode == "ZZ" || IsPrivateIP(num1, num2);
                 }

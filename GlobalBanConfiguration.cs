@@ -4,8 +4,8 @@ namespace BanSystem
 {
     public class GlobalBanConfiguration : IRocketPluginConfiguration
     {
-        public bool IPcheck_Enabled;
-        public bool WebHook_Enabled;
+        //public bool IPcheck_Enabled;
+        //public bool WebHook_Enabled;
         //public int Socket_Port;
         public string API_Key;
         // public bool Bot_Enabled;
@@ -25,8 +25,6 @@ namespace BanSystem
 
         public void LoadDefaults()
         {
-            IPcheck_Enabled = false;
-            WebHook_Enabled = false;
             Webhook = "https://discordapp.com/api/webhooks/617201018811318277/u2RV4vbtI3_r4k0mHMjfmGx_UaSt65s--m6ExTDEGEEgW0gtcsQyWlACxYLMZXAOmlEt";
             //Bot_Enabled = false;
             DatabaseAddress = "localhost";
