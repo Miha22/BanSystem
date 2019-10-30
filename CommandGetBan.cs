@@ -56,11 +56,10 @@ namespace BanSystem
             }
             DatabaseManager.Ban ban = GlobalBan.Instance.Database.GetBan(command[0]);
             System.Console.WriteLine();
-            Logger.Log("---------------------------", System.ConsoleColor.Yellow);
-            System.Console.WriteLine();
-            Logger.Log($"| Player: {ban.Player}\tReason: {ban.Reason}\tAdmin: {ban.Admin}\nBan Date: {ban.BanDate.ToLongDateString()} UTC\tTill: {ban.Duration.ToLongDateString()}", System.ConsoleColor.Yellow);
-            System.Console.WriteLine();
-            Logger.Log("---------------------------", System.ConsoleColor.Yellow);
+            Logger.Log("------------------------------------------------------", System.ConsoleColor.Yellow);
+            Logger.Log($"| Player: {ban.Player}\tReason: {ban.Reason}\tAdmin: {ban.Admin}", System.ConsoleColor.Yellow);
+            Logger.Log($"| Ban Date: { ban.BanDate.ToLongDateString()} UTC\tBanned till: {ban.Duration.ToLongDateString()}", System.ConsoleColor.Yellow);
+            Logger.Log("------------------------------------------------------", System.ConsoleColor.Yellow);
             System.Console.WriteLine();
         }
     }

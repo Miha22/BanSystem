@@ -2,18 +2,15 @@
 using Newtonsoft.Json;
 using Rocket.API.Collections;
 using Rocket.Core.Plugins;
-using Rocket.Unturned.Chat;
 using Rocket.Unturned.Permissions;
 using SDG.Unturned;
 using Steamworks;
 using System;
-using System.Threading.Tasks;
-using System.Net.Http;
-using System.Net;
 using Logger = Rocket.Core.Logging.Logger;
 using Rocket.Unturned;
 using Rocket.Unturned.Player;
-using MySql.Data.MySqlClient;
+using System.Net;
+using System.IO;
 
 namespace BanSystem
 {
@@ -130,11 +127,6 @@ namespace BanSystem
             }
         }
 
-        private string RandomText()
-        {
-            throw new NotImplementedException();
-        }
-
         private void SendMessageAsync(DiscordWebhookMessage msg, string url)
         {
             string json = JsonConvert.SerializeObject(msg);
@@ -190,54 +182,106 @@ namespace BanSystem
         //    GetResponse(player.Player.channel.owner.playerID.characterName, player.Player.channel.owner.playerID.steamID, GetHWidString(player.Player.channel.owner.playerID.hwid), ip);
         //}
 
-        private async Task<bool> IsBadIP(CSteamID steamID)
+        private bool IsBadIP(CSteamID steamID)
         {
-            using (HttpClient httpClient = new HttpClient())
+            SteamGameServerNetworking.GetP2PSessionState(steamID, out P2PSessionState_t pConnectionState);
+            string ip = Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"http://v2.api.iphub.info/ip/{ip}");
+            request.Headers.Add("X-Key", $"{Configuration.Instance.API_Key}");
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            using (Stream stream = response.GetResponseStream())
             {
-                SteamGameServerNetworking.GetP2PSessionState(steamID, out P2PSessionState_t pConnectionState);
-                string ip = Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
-                using (HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), $"http://v2.api.iphub.info/ip/{ip}"))
+                using (StreamReader reader = new StreamReader(stream))
                 {
-                    request.Headers.TryAddWithoutValidation("X-Key", $"{Instance.Configuration.Instance.API_Key}");
-                    HttpResponseMessage response = await httpClient.SendAsync(request);
-                    string json = await response.Content.ReadAsStringAsync();
-                    ConnectedIP client = JsonConvert.DeserializeObject<ConnectedIP>(json);
+                    ConnectedIP client = JsonConvert.DeserializeObject<ConnectedIP>(reader.ReadToEnd());
                     string[] str = client.ip.Split('.');
                     byte.TryParse(str[0], out byte num1);
                     byte.TryParse(str[1], out byte num2);
+                    Console.WriteLine($"block: {client.block}");
+                    Console.WriteLine($"countryCode: {client.countryCode}");
+                    Console.WriteLine($"IsPrivateIP: {IsPrivateIP(num1, num2)}");
 
                     return client.block != 0 || client.countryCode == "ZZ" || IsPrivateIP(num1, num2);
                 }
             }
         }
 
-        //private async void GetResponse(string player, CSteamID steamID, string hwid, string ip)
+        //private void IsBadIP(CSteamID steamID)
         //{
+        //    using (HttpClient httpClient = new HttpClient())
+        //    {
+        //        SteamGameServerNetworking.GetP2PSessionState(steamID, out P2PSessionState_t pConnectionState);
+        //        string ip = Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
+        //        //Console.WriteLine($"ip: {ip}");
+        //        //Console.WriteLine($"url: http://v2.api.iphub.info/ip/{ip}");
+        //        Console.WriteLine("point 1");
+        //        using (HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), $"http://v2.api.iphub.info/ip/{ip}"))
+        //        {
+        //            Console.WriteLine("point 2");
+        //            request.Headers.TryAddWithoutValidation("X-Key", $"{Configuration.Instance.API_Key}");
+        //            Console.WriteLine("point 3");
+        //            //HttpResponseMessage response = httpClient.SendAsync(request).Result;
+        //            Task<HttpResponseMessage> response = Task.Run(() => httpClient.SendAsync(request));
+        //            response.Wait();
+        //            Console.WriteLine("point 4");
+        //            string json = response.Result.Content.ReadAsStringAsync().Result;
+        //            Console.WriteLine("point 5");
+        //            ConnectedIP client = JsonConvert.DeserializeObject<ConnectedIP>(json);
+        //            Console.WriteLine("point 6");
+        //            string[] str = client.ip.Split('.');
+        //            byte.TryParse(str[0], out byte num1);
+        //            byte.TryParse(str[1], out byte num2);
+        //            Console.WriteLine($"block: {client.block}");
+        //            Console.WriteLine($"countryCode: {client.countryCode}");
+        //            Console.WriteLine($"IsPrivateIP: {IsPrivateIP(num1, num2)}");
+
+        //            //res = client.block != 0 || client.countryCode == "ZZ" || IsPrivateIP(num1, num2);
+        //        }
+        //    }
+        //    //using (var httpClient = new HttpClient())
+        //    //{
+        //    //    using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"http://v2.api.iphub.info/ip/{}"))
+        //    //    {
+        //    //        request.Headers.TryAddWithoutValidation("X-Key", "NjYwNTpuVWZxQW1aNWZsSlhWNlhzTjJKUlMzOWdqejBQVEJSVg==");
+
+        //    //        var response = httpClient.SendAsync(request).Result;
+        //    //        Console.WriteLine(response.Content.ReadAsStringAsync().Result);
+        //    //    }
+        //    //}
+        //}
+
+        //private async void GetResponse(CSteamID steamID)
+        //{
+        //    SteamGameServerNetworking.GetP2PSessionState(steamID, out P2PSessionState_t pConnectionState);
+        //    string ip = Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
         //    using (HttpClient httpClient = new HttpClient())
         //    {
         //        using (HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), $"http://v2.api.iphub.info/ip/{ip}"))
         //        {
-        //            //request.Headers.TryAddWithoutValidation("X-Key", "NjE4NTpHNXZ1Z0ZaVkU3Mmc2SVJLN0dFWjRTWlVUYzJJRGQ2WQ==");
+        //            Console.WriteLine("point 1");
+        //            request.Headers.TryAddWithoutValidation("X-Key", "NjE4NTpHNXZ1Z0ZaVkU3Mmc2SVJLN0dFWjRTWlVUYzJJRGQ2WQ==");
         //            request.Headers.TryAddWithoutValidation("X-Key", $"{Instance.Configuration.Instance.API_Key}");
         //            HttpResponseMessage response = await httpClient.SendAsync(request);
+        //            Console.WriteLine("point 2");
         //            string json = await response.Content.ReadAsStringAsync();
+        //            Console.WriteLine("point 3");
         //            ConnectedIP client = JsonConvert.DeserializeObject<ConnectedIP>(json);
-        //            //Console.WriteLine(json);
-        //            //string[] str = json.Split(':');
-        //            //string countryCode = str[2].Substring(1, 2);
-        //            //string block = str[str.Length - 2].Substring(0, 1);
-        //            //Console.WriteLine();
-        //            //Console.WriteLine($"client.block: {client.block}, client.ip: {client.ip}");
-        //            //string[] str = client.ip.Split('.');
-        //            //byte.TryParse(str[0], out byte num1);
-        //            //byte.TryParse(str[1], out byte num2);
-        //            // || IsPrivateIP(num1, num2) || client.countryCode == "ZZ"
+        //            Console.WriteLine(json);
+        //            string[] str = json.Split(':');
+        //            string countryCode = str[2].Substring(1, 2);
+        //            string block = str[str.Length - 2].Substring(0, 1);
+        //            Console.WriteLine();
+        //            Console.WriteLine($"client.block: {client.block}, client.ip: {client.ip}");
+        //            string[] str2 = client.ip.Split('.');
+        //            byte.TryParse(str2[0], out byte num1);
+        //            byte.TryParse(str2[1], out byte num2);
+        //             || IsPrivateIP(num1, num2) || client.countryCode == "ZZ"
         //            if (client.block != 0)
         //            {
         //                BanDisconnect(player, steamID, ip, hwid, false, $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}", $"VPN/Proxy)", 0);
-        //                //GlobalBan.Instance.Database.BanPlayer(player.Player.channel.owner.playerID.characterName, player.CSteamID.ToString(), ip, hwid, "Server", "", 0);//0=forever
-        //                //UnturnedChat.Say(GlobalBan.Instance.Translate("command_ban_private", player.Player.channel.owner.playerID.characterName));
-        //                //Provider.kick(player.CSteamID, GlobalBan.Instance.Translate("command_ban_private_default_reason"));
+        //                GlobalBan.Instance.Database.BanPlayer(player.Player.channel.owner.playerID.characterName, player.CSteamID.ToString(), ip, hwid, "Server", "", 0);//0=forever
+        //                UnturnedChat.Say(GlobalBan.Instance.Translate("command_ban_private", player.Player.channel.owner.playerID.characterName));
+        //                Provider.kick(player.CSteamID, GlobalBan.Instance.Translate("command_ban_private_default_reason"));
         //                Console.WriteLine();
         //                Console.WriteLine($"Player had Proxy or private IP, block: {client.block}, country code: {client.countryCode}");
         //            }
@@ -343,14 +387,15 @@ namespace BanSystem
         {
             try
             {
-                if (IsBadIP(player).Result || Database.IsBanned(player))
+                if (IsBadIP(player) || Database.IsBanned(player))
                 {
                     rejection = ESteamRejection.AUTH_PUB_BAN;
-                    Logger.Log($"VPN Connection rejected");
+                    //Logger.Log($"VPN Connection rejected");
                 }
             }
             catch (Exception e)
             {
+                Console.WriteLine("Exception in Events_OnJoinRequested");
                 Console.WriteLine(e.Message);
             }
         }

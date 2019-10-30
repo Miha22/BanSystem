@@ -52,7 +52,8 @@ namespace BanSystem
                 {
                     res.Read();
                     //Console.WriteLine("point 1.5");
-                    date = ((DateTime)res["banTime"]).AddSeconds(res.GetInt32("banDuration")).AddHours(-GlobalBan.Instance.UTCoffset);
+                    //date = ((DateTime)res["banTime"]).AddSeconds(res.GetInt32("banDuration")).AddHours(-GlobalBan.Instance.UTCoffset);
+                    date = res["banDuration"] == DBNull.Value ? DateTime.MaxValue : ((DateTime)res["banTime"]).AddSeconds(res.GetInt32("banDuration"));
                     connection.Close();
                     return true;
                 }
@@ -194,7 +195,7 @@ namespace BanSystem
                 {
                     //command.CommandText = "SET @@session.time_zone ='+00:00';";
                     //command.ExecuteNonQuery();
-                    command.CommandText = "CREATE TABLE `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` (`id` int(11) NOT NULL AUTO_INCREMENT,`steamId` varchar(32) NOT NULL,`ip` varchar(15) DEFAULT NULL,`hwid` varchar(256) DEFAULT NULL,`admin` varchar(32) NOT NULL,`banMessage` varchar(512) DEFAULT NULL,`charactername` varchar(255) DEFAULT NULL,`banDuration` int NULL,`banTime` timestamp NULL ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (`id`));";
+                    command.CommandText = "CREATE TABLE `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` (`id` int(11) NOT NULL AUTO_INCREMENT,`steamId` varchar(32) NOT NULL,`ip` varchar(15) DEFAULT NULL,`hwid` varchar(256) DEFAULT NULL,`admin` varchar(32) NOT NULL,`reason` varchar(512) DEFAULT NULL,`charactername` varchar(255) DEFAULT NULL,`banDuration` int NULL,`banTime` timestamp NULL ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (`id`));";
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
@@ -205,20 +206,20 @@ namespace BanSystem
             }
         }
 
-        public void BanPlayer(string characterName, string steamid, string ip, string hwid, string admin, string banMessage, uint duration, DateTime banTime)
+        public void BanPlayer(string characterName, string steamid, string ip, string hwid, string admin, string reason, uint duration, DateTime banTime)
         {
             try
             {
                 characterName = Regex.Replace(characterName, @"\p{Cs}", "");
                 MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
-                if (banMessage == null) banMessage = "";
-                command.Parameters.AddWithValue("@csteamid", steamid);
+                if (reason == null) reason = "";
+                command.Parameters.AddWithValue("@steamid", steamid);
                 command.Parameters.AddWithValue("@ip", ip);
                 command.Parameters.AddWithValue("@hwid", hwid);
                 command.Parameters.AddWithValue("@admin", admin); 
                 command.Parameters.AddWithValue("@charactername", characterName);
-                command.Parameters.AddWithValue("@banMessage", banMessage);
+                command.Parameters.AddWithValue("@reason", reason);
                 command.Parameters.AddWithValue("@banTime", banTime);
                 if (duration == 0U)
                 {
@@ -229,7 +230,7 @@ namespace BanSystem
                     command.Parameters.AddWithValue("@banDuration", duration);
                 }
                 //command.CommandText = "insert into `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` (`steamId`,`ip`,`hwid`,`admin`,`banMessage`,`charactername`,`banTime`,`banDuration`) values(@csteamid,@ip,@hwid,@admin,@banMessage,@charactername,now(),@banDuration);";
-                command.CommandText = "insert into `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` (`steamId`,`ip`,`hwid`,`admin`,`banMessage`,`charactername`,`banTime`,`banDuration`) values(@csteamid,@ip,@hwid,@admin,@banMessage,@charactername,now(),@banDuration);";
+                command.CommandText = "insert into `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` (`steamId`,`ip`,`hwid`,`admin`,`reason`,`charactername`,`banTime`,`banDuration`) values(@steamid,@ip,@hwid,@admin,@reason,@charactername,now(),@banDuration);";
                 connection.Open();
                 command.ExecuteNonQuery();
                 connection.Close();
