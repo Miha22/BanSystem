@@ -87,7 +87,7 @@ namespace BanSystem
             //}
 
             
-            UnturnedPermissions.OnJoinRequested += Events_OnJoinRequested;
+            //UnturnedPermissions.OnJoinRequested += Events_OnJoinRequested;
             U.Events.OnPlayerConnected += RocketServerEvents_OnPlayerConnected;
             Logger.Log($"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name} loaded!", ConsoleColor.Cyan);
         }
@@ -102,7 +102,7 @@ namespace BanSystem
         protected override void Unload()
         {
             //Process.GetProcessById(_botProcessID).CloseMainWindow();
-            UnturnedPermissions.OnJoinRequested -= Events_OnJoinRequested;
+            //UnturnedPermissions.OnJoinRequested -= Events_OnJoinRequested;
             U.Events.OnPlayerConnected -= RocketServerEvents_OnPlayerConnected;
             //Rocket.Core.Logging.Logger.Log($"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name} by M22 loaded!", ConsoleColor.Cyan);
         }
@@ -375,22 +375,22 @@ namespace BanSystem
         //    player.Kick(Translate("default_banmessage",ban.Admin,ban.Time.ToString(),ban.Duration == -1 ? "" : ban.Duration.ToString()));
         //}
 
-        private void Events_OnJoinRequested(CSteamID player, ref ESteamRejection? rejection)
-        {
-            try
-            {
-                if (IsBadIP(player) || Database.IsBanned(player))
-                {
-                    rejection = ESteamRejection.AUTH_PUB_BAN;
-                    //Logger.Log($"VPN Connection rejected");
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Exception in Events_OnJoinRequested");
-                Console.WriteLine(e.Message);
-            }
-        }
+        //private void Events_OnJoinRequested(CSteamID player, ref ESteamRejection? rejection)
+        //{
+        //    try
+        //    {
+        //        if (IsBadIP(player) || Database.IsBanned(player))
+        //        {
+        //            rejection = ESteamRejection.AUTH_PUB_BAN;
+        //            //Logger.Log($"VPN Connection rejected");
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Console.WriteLine("Exception in Events_OnJoinRequested");
+        //        Console.WriteLine(e.Message);
+        //    }
+        //}
 
 
         //[DllImport("libc")]
