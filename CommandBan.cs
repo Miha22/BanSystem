@@ -61,7 +61,7 @@ namespace BanSystem
                             return;
                     }
                 }
-                GlobalBan.Instance.Database.BanPlayer(targetPlayer.playerID.characterName.ToLower(), targetPlayer.playerID.steamID.ToString(), ip, hwid, caller.DisplayName, reason, duration, System.DateTime.UtcNow);//0=forever
+                GlobalBan.Instance.Database.BanPlayer(targetPlayer.playerID.characterName.ToLower(), targetPlayer.playerID.steamID.ToString(), caller.DisplayName, reason, duration);//0=forever
                 Provider.kick(targetPlayer.playerID.steamID, reason);
                 UnturnedChat.Say(GlobalBan.Instance.Translate("command_ban_public_reason", targetPlayer.playerID.characterName, reason));
                 Embed embed = new Embed()
