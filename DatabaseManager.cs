@@ -57,8 +57,10 @@ namespace BanSystem
                         //date = ((DateTime)res["banTime"]).AddSeconds(res.GetInt32("banDuration")).AddHours(-GlobalBan.Instance.UTCoffset);
                         date = res["banDuration"] == DBNull.Value ? DateTime.MaxValue : ((DateTime)res["banTime"]).AddSeconds(res.GetInt32("banDuration"));
                         connection.Close();
+                        connection.Dispose();
                         return true;
                     }
+                    connection.Close();
                 }
 
                 using (MySqlConnection connection = CreateConnection())
@@ -82,7 +84,6 @@ namespace BanSystem
                             connection2.Close();
                         }
                     }
-                    //connection.Close();
                 }  
             }
             catch (Exception ex)
@@ -170,6 +171,7 @@ namespace BanSystem
                         result.Read();
                         //connection.Close();
                         connection.Close();
+                        connection.Dispose();
                         return new Ban
                         {
                             Player = (string)result["charactername"],
@@ -179,7 +181,6 @@ namespace BanSystem
                             Admin = (result["admin"] == DBNull.Value || result["admin"].ToString() == "Rocket.API.ConsolePlayer") ? "Console" : (string)result["admin"]
                         };
                     }
-
                     connection.Close();
                 }
             }
@@ -313,6 +314,7 @@ namespace BanSystem
                     connection.Open();
                     command.ExecuteNonQuery();
                     connection.Close();
+                    connection.Dispose();
                     return new UnbanResult() { Id = steamId, Name = charactername };
                 }
             }
