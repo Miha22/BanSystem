@@ -26,15 +26,15 @@ namespace BanSystem
                     UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_invalid_parameter") + $" Use: {Syntax}", Color.red);
                     return;
                 }
-                string charactername;
-                if (!PlayerTool.tryGetSteamPlayer(command[0], out SteamPlayer targetPlayer))
-                {
-                    UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_player_not_found"), Color.red);
-                    return;
-                }
-                SteamGameServerNetworking.GetP2PSessionState(targetPlayer.playerID.steamID, out P2PSessionState_t pConnectionState);
-                string ip = Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
-                string hwid = GlobalBan.Instance.GetHWidString(targetPlayer.playerID.hwid);
+                //string charactername;
+                //if (!PlayerTool.tryGetSteamPlayer(command[0], out SteamPlayer targetPlayer))
+                //{
+                //    UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_player_not_found"), Color.red);
+                //    return;
+                //}
+                //SteamGameServerNetworking.GetP2PSessionState(targetPlayer.playerID.steamID, out P2PSessionState_t pConnectionState);
+                //string ip = Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
+                //string hwid = GlobalBan.Instance.GetHWidString(targetPlayer.playerID.hwid);
                 string reason = command.Length == 1 ? "N/A" : command[1];
                 uint duration = 0U;
 
@@ -62,15 +62,23 @@ namespace BanSystem
                             return;
                     }
                 }
-                GlobalBan.Instance.Database.BanPlayer(targetPlayer.playerID.characterName.ToLower(), targetPlayer.playerID.steamID.ToString(), caller.DisplayName, reason, duration);//0=forever
-                Provider.kick(targetPlayer.playerID.steamID, reason);
+                DatabaseManager.Ban ban = GlobalBan.Instance.Database.GetBan(command[0]);
+                if (ban == null)
+                {
+                    UnturnedChat.Say(caller, "Player not found, try different name or steamID", Color.red);
+                    return;
+                }
+                GlobalBan.Instance.Database.BanPlayer(ban.Player, ban.SteamID, caller.DisplayName, reason, duration);//0=forever
+                if (PlayerTool.tryGetSteamPlayer(command[0], out SteamPlayer targetPlayer))
+                    Provider.kick(targetPlayer.playerID.steamID, reason);
+
                 UnturnedChat.Say(GlobalBan.Instance.Translate("command_ban_public_reason", targetPlayer.playerID.characterName, reason));
                 Embed embed = new Embed()
                 {
                     fields = new Field[]
                     {
-                        new Field("**Player**", targetPlayer.playerID.characterName, true),
-                        new Field("**\t\t\tSteamID**", targetPlayer.playerID.steamID.ToString(), true),
+                        new Field("**Player**", ban.Player, true),
+                        new Field("**\t\t\tSteamID**", ban.SteamID, true),
                         new Field("**Reason**", reason, true),
                         new Field("**Duration**", duration == 0U ? "Permanent" : $"{duration} sec.\ntill: {System.DateTime.UtcNow.AddSeconds(duration)} UTC", true),
                         new Field("**Admin**", caller.DisplayName, true),
