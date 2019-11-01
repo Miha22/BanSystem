@@ -56,13 +56,13 @@ namespace BanSystem
                 return;
             }
             DatabaseManager.Ban ban = GlobalBan.Instance.Database.GetBan(command[0]);
-            System.Console.WriteLine();
+            Console.WriteLine();
             Logger.Log("------------------------------------------------------", ConsoleColor.Yellow);
-            Logger.Log(ban.Duration.Ticks == ban.BanDate.Ticks || ban.Duration.Ticks < DateTime.Now.AddHours(-GlobalBan.Instance.UTCoffset).Ticks ? "| Result: NOT BANNED" : "| Result: BANNED", ConsoleColor.Yellow);
+            Logger.Log(ban.Duration == DateTime.MinValue ? "| Player: NOT BANNED" : "| Player: BANNED", ConsoleColor.Yellow);
             Logger.Log($"| Player: {ban.Player}\tReason: {ban.Reason}\tAdmin: {ban.Admin}", ConsoleColor.Yellow);
-            Logger.Log($"| Ban Date: { ban.BanDate.ToLongDateString()} UTC\tBanned till: {ban.Duration.ToLongDateString()}", ConsoleColor.Yellow);
+            Logger.Log($"| Ban Date: {(ban.BanDate == DateTime.MinValue ? "none" : ban.BanDate.ToLongDateString())} UTC\tBanned till: {(ban.Duration == DateTime.MinValue ? "none" : ban.Duration.ToLongDateString())}", ConsoleColor.Yellow);
             Logger.Log("------------------------------------------------------", ConsoleColor.Yellow);
-            System.Console.WriteLine();
+            Console.WriteLine();
         }
     }
 }
