@@ -26,6 +26,7 @@ namespace BanSystem
                     UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_invalid_parameter") + $" Use: {Syntax}", Color.red);
                     return;
                 }
+                string charactername;
                 if (!PlayerTool.tryGetSteamPlayer(command[0], out SteamPlayer targetPlayer))
                 {
                     UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_player_not_found"), Color.red);

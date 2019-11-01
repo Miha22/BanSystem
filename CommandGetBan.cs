@@ -56,6 +56,12 @@ namespace BanSystem
                 return;
             }
             DatabaseManager.Ban ban = GlobalBan.Instance.Database.GetBan(command[0]);
+            if(ban == null)
+            {
+                UnturnedChat.Say(caller, "Player not found, try different name or steamID", Color.yellow);
+                return;
+            }
+            if(caller.DisplayName == "")
             Console.WriteLine();
             Logger.Log("------------------------------------------------------", ConsoleColor.Yellow);
             Logger.Log(ban.Duration == DateTime.MinValue ? "| Player: NOT BANNED" : "| Player: BANNED", ConsoleColor.Yellow);

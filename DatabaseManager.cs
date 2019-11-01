@@ -176,9 +176,7 @@ namespace BanSystem
                     {
                         result.Read();
                         //connection.Close();
-                        connection.Close();
-                        connection.Dispose();
-                        return new Ban
+                        Ban ban = new Ban
                         {
                             Player = (string)result["charactername"],
                             Reason = (string)result["reason"],
@@ -186,6 +184,9 @@ namespace BanSystem
                             Duration = result["banDuration"] == DBNull.Value ? DateTime.MinValue : ((DateTime)result["banTime"]).AddSeconds(result.GetInt32("banDuration")),
                             Admin = (result["admin"] == DBNull.Value || result["admin"].ToString() == "Rocket.API.ConsolePlayer") ? "Console" : (string)result["admin"]
                         };
+                        connection.Close();
+                        connection.Dispose();
+                        return ban;
                     }
                     connection.Close();
                 }
@@ -233,7 +234,7 @@ namespace BanSystem
                 command.Parameters.AddWithValue("@characterName", "%" + characterName + "%");
                 object res = duration == 0U ? (object)DBNull.Value : duration;
                 //command.CommandText = "insert into `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` (`steamId`,`ip`,`hwid`,`admin`,`banMessage`,`charactername`,`banTime`,`banDuration`) values(@csteamid,@ip,@hwid,@admin,@banMessage,@charactername,now(),@banDuration);";
-                command.CommandText = "UPDATE `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` SET `banDuration` = '" + res + "',`banTime` = '" + DateTime.Now + "',`admin` = '" + admin + "',`reason` = '" + reason + "' WHERE `steamId` like @steamid OR `charactername` like @charactername;";
+                command.CommandText = "UPDATE `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` SET `banDuration` = '" + res + "',`banTime` = now(),`admin` = '" + admin + "',`reason` = '" + reason + "' WHERE `steamId` like @steamid OR `charactername` like @charactername;";
                 connection.Open();
                 command.ExecuteNonQuery();
                 connection.Close();
@@ -260,7 +261,7 @@ namespace BanSystem
                 command.Parameters.AddWithValue("@banTime", DBNull.Value);
                 command.Parameters.AddWithValue("@banDuration", 0);
                 //command.CommandText = "insert into `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` (`steamId`,`ip`,`hwid`,`admin`,`banMessage`,`charactername`,`banTime`,`banDuration`) values(@csteamid,@ip,@hwid,@admin,@banMessage,@charactername,now(),@banDuration);";
-                command.CommandText = "insert into `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` (`steamId`,`ip`,`hwid`,`admin`,`reason`,`charactername`,`banTime`,`banDuration`) values(@steamid,@ip,@hwid,@admin,@reason,@charactername,now(),@banDuration);";
+                command.CommandText = "insert into `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` (`steamId`,`ip`,`hwid`,`admin`,`reason`,`charactername`,`banTime`,`banDuration`) values(@steamid,@ip,@hwid,@admin,@reason,@charactername,@banTime,@banDuration);";
                 connection.Open();
                 command.ExecuteNonQuery();
                 connection.Close();
