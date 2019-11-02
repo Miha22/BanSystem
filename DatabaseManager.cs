@@ -65,6 +65,8 @@ namespace BanSystem
                     connection.Close();
                 }
 
+                Ban ban = GetBan(player, player.CSteamID.ToString());
+
                 using (MySqlConnection connection = CreateConnection())
                 {
                     MySqlCommand command = connection.CreateCommand();
@@ -198,6 +200,31 @@ namespace BanSystem
                 Logger.LogException(ex);
             }
             return null;
+        }
+
+        public bool GetBan(string player, string steamID)
+        {
+            object result = null;
+            try
+            {
+                using (MySqlConnection connection = CreateConnection())
+                {
+                    MySqlCommand command = connection.CreateCommand();
+                    command.Parameters.AddWithValue("@player", player);
+                    command.Parameters.AddWithValue("@steamId", steamID);
+                    //command.CommandText = "select steamId,charactername from `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` where `steamId` like @player OR `charactername` like @player;";
+
+                    command.CommandText = "select  1 from `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` WHERE `steamId` = @steamId AND `charactername` = @player;";
+                    connection.Open();
+                    result = command.ExecuteScalar();
+                    connection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return result == null;
         }
 
         public void CheckSchema()
