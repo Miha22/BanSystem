@@ -64,9 +64,10 @@ namespace BanSystem
             if(caller.DisplayName == "")
             Console.WriteLine();
             Logger.Log("------------------------------------------------------", ConsoleColor.Yellow);
-            Logger.Log(ban.Duration == DateTime.MinValue ? "| Player: NOT BANNED" : "| Player: BANNED", ConsoleColor.Yellow);
+            Logger.Log(ban.Duration.Ticks < DateTime.Now.Ticks || ban.Duration == DateTime.MinValue ? "| Player: NOT BANNED" : "| Player: BANNED", ConsoleColor.Yellow);
             Logger.Log($"| Player: {ban.Player}\tReason: {ban.Reason}\tAdmin: {ban.Admin}", ConsoleColor.Yellow);
-            Logger.Log($"| Ban Date: {(ban.BanDate == DateTime.MinValue ? "none" : ban.BanDate.ToLongDateString())} UTC\tBanned till: {(ban.Duration == DateTime.MinValue ? "none" : ban.Duration.ToLongDateString())}", ConsoleColor.Yellow);
+            Logger.Log($"| Ban Date: {(ban.BanDate == DateTime.MinValue ? "none" : ban.BanDate.AddHours(-GlobalBan.Instance.UTCoffset).ToString())} UTC\tBanned till: {(ban.Duration == DateTime.MaxValue ? "Permanent" : ban.Duration.Ticks < DateTime.Now.Ticks || ban.Duration == DateTime.MinValue ? "none" : ban.Duration.AddHours(-GlobalBan.Instance.UTCoffset).ToString())} UTC", ConsoleColor.Yellow);
+            Logger.Log($"| UTC Time now: {DateTime.UtcNow}", ConsoleColor.Yellow);
             Logger.Log("------------------------------------------------------", ConsoleColor.Yellow);
             Console.WriteLine();
         }

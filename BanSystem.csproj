@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandBan1.cs" />
+    <Compile Include="DBtest.cs" />
     <Compile Include="DiscordWebhookMessage - Copy.cs" />
     <Compile Include="DiscordWebhookMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -43,36 +43,40 @@ namespace BanSystem
                     switch (command[2].ToLower())
                     {
                         case "hour":
-                            duration = 3600;
+                            duration = 3600U;
                             break;
                         case "day":
-                            duration = 86400;
+                            duration = 86400U;
                             break;
                         case "week":
-                            duration = 604800;
+                            duration = 604800U;
                             break;
                         case "month":
-                            duration = 2628000;
+                            duration = 2628000U;
                             break;
                         case "year":
-                            duration = 31536000;
+                            duration = 31536000U;
                             break;
                         default:
                             UnturnedChat.Say(caller, "Unabled to ban player: Invalid ban time", Color.red);
                             return;
                     }
                 }
+                //System.Console.WriteLine("point 0");
                 DatabaseManager.Ban ban = GlobalBan.Instance.Database.GetBan(command[0]);
+                //System.Console.WriteLine("point 1");
                 if (ban == null)
                 {
                     UnturnedChat.Say(caller, "Player not found, try different name or steamID", Color.red);
                     return;
                 }
+                //System.Console.WriteLine("point 2");
                 GlobalBan.Instance.Database.BanPlayer(ban.Player, ban.SteamID, caller.DisplayName, reason, duration);//0=forever
+                //System.Console.WriteLine("point 3");
                 if (PlayerTool.tryGetSteamPlayer(command[0], out SteamPlayer targetPlayer))
                     Provider.kick(targetPlayer.playerID.steamID, reason);
-
-                UnturnedChat.Say(GlobalBan.Instance.Translate("command_ban_public_reason", targetPlayer.playerID.characterName, reason));
+                //System.Console.WriteLine("point 4");
+                UnturnedChat.Say($"{ban.Player} was banned for {reason}", Color.magenta);
                 Embed embed = new Embed()
                 {
                     fields = new Field[]

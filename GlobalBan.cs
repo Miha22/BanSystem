@@ -96,7 +96,9 @@ namespace BanSystem
         {
             //Console.WriteLine("REJECTED ON SECOND LAYER");
             if (Database.IsBanned(player, out DateTime date))
-                Provider.kick(player.CSteamID, $"You are banned till: {date} UTC");
+                Provider.kick(player.CSteamID, $"You are banned till: {date.AddHours(-UTCoffset).ToString()} UTC");
+            if(IsBadIP(player.CSteamID))
+                Provider.kick(player.CSteamID, $"You are using VPN. Private IPs are not allowed on this server. Turn off your proxy.");
         }
 
         protected override void Unload()
