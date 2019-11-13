@@ -67,7 +67,7 @@ namespace BanSystem
                 return;
             }
             UnturnedChat.Say($"The player {unban.Player} was unbanned by {caller.DisplayName}", UnityEngine.Color.magenta);
-            Embed embed = new Embed()
+            Embed embed = new Embed
             {
                 fields = new Field[]
                 {

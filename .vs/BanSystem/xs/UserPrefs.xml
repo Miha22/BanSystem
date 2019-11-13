@@ -1,14 +1,15 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workbench ActiveDocument="CommandBan.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="DatabaseManager.cs">
     <Files>
-      <File FileName="GlobalBan.cs" Line="23" Column="34" />
-      <File FileName="CommandBan.cs" Line="68" Column="106" />
-      <File FileName="GlobalBanConfiguration.cs" />
-      <File FileName="CommandUnban.cs" />
-      <File FileName="DatabaseManager.cs" Line="239" Column="276" />
-      <File FileName="CommandGetBan.cs" Line="58" Column="13" />
+      <File FileName="GlobalBan.cs" Line="50" Column="13" />
+      <File FileName="CommandBan.cs" Line="79" Column="50" />
+      <File FileName="GlobalBanConfiguration.cs" Line="1" Column="1" />
+      <File FileName="CommandUnban.cs" Line="70" Column="36" />
+      <File FileName="DatabaseManager.cs" Line="167" Column="37" />
+      <File FileName="CommandGetBan.cs" />
       <File FileName="CommandBan1.cs" />
       <File FileName="Properties/AssemblyInfo.cs" />
+      <File FileName="CommandKick.cs" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -17,7 +18,7 @@
             <Node name="BanSystem" expanded="True">
               <Node name="References" expanded="True" />
               <Node name="Properties" expanded="True" />
-              <Node name="CommandBan.cs" selected="True" />
+              <Node name="DatabaseManager.cs" selected="True" />
             </Node>
           </Node>
         </State>

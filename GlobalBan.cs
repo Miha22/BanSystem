@@ -36,6 +36,7 @@ namespace BanSystem
                 Instance = null;
                 Database = null;
                 Logger.LogError("Plugin is outdated!");
+                return;
             }
 
             //serverProcess = new Process();
@@ -44,7 +45,9 @@ namespace BanSystem
                 Logger.LogWarning("[WARNING] VPN/Proxy protection is DISABLED, check your config for correct API!");
             if (Configuration.Instance.Webhook == "")
                 Logger.LogWarning("[WARNING] WebHook reports are DISABLED, check your config for correct API!");
-            //Arguments = $@"/c dotnet E:\Users\Deniel\Source\Repos\SocketPractiseServer\SocketPractiseServer\bin\Debug\netcoreapp2.1\SocketPractiseServer.dll"
+
+
+                        //Arguments = $@"/c dotnet E:\Users\Deniel\Source\Repos\SocketPractiseServer\SocketPractiseServer\bin\Debug\netcoreapp2.1\SocketPractiseServer.dll"
             //if (Configuration.Instance.Bot_Token != "" && Configuration.Instance.Bot_Enabled)
             //{
             //    //run bot if sucess returned continue, if not UnloadPlugin()
@@ -86,7 +89,7 @@ namespace BanSystem
             //    Configuration.Instance.Bot_Enabled = false;
             //}
 
-            
+
             //UnturnedPermissions.OnJoinRequested += Events_OnJoinRequested;
             U.Events.OnPlayerConnected += RocketServerEvents_OnPlayerConnected;
             Logger.Log($"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name} loaded!", ConsoleColor.Cyan);

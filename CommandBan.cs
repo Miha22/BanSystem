@@ -40,22 +40,27 @@ namespace BanSystem
 
                 if (command.Length == 3 && !uint.TryParse(command[2], out duration))
                 {
-                    switch (command[2].ToLower())
+                    if(!uint.TryParse(command[2].Substring(0, 1), out uint mult))
                     {
-                        case "hour":
-                            duration = 3600U;
+                        UnturnedChat.Say(caller, "Unabled to ban player: Invalid ban time", Color.red);
+                        return;
+                    }
+                    switch (command[2].Substring(1).ToLower())
+                    {
+                        case "h":
+                            duration = 3600u * mult;
                             break;
-                        case "day":
-                            duration = 86400U;
+                        case "d":
+                            duration = 86400U * mult;
                             break;
-                        case "week":
-                            duration = 604800U;
+                        case "w":
+                            duration = 604800U * mult;
                             break;
-                        case "month":
-                            duration = 2628000U;
+                        case "m":
+                            duration = 2628000U * mult;
                             break;
-                        case "year":
-                            duration = 31536000U;
+                        case "y":
+                            duration = 31536000U * mult;
                             break;
                         default:
                             UnturnedChat.Say(caller, "Unabled to ban player: Invalid ban time", Color.red);
@@ -77,7 +82,7 @@ namespace BanSystem
                     Provider.kick(targetPlayer.playerID.steamID, reason);
                 //System.Console.WriteLine("point 4");
                 UnturnedChat.Say($"{ban.Player} was banned for {reason}", Color.magenta);
-                Embed embed = new Embed()
+                Embed embed = new Embed
                 {
                     fields = new Field[]
                     {

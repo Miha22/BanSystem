@@ -38,7 +38,7 @@ namespace BanSystem
         {
             get
             {
-                return new List<string>() { "globalban.kick" };
+                return new List<string> { "bansystem.kick" };
             }
         }
 
@@ -56,16 +56,22 @@ namespace BanSystem
                 UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_player_not_found"));
                 return;
             }
-            if (command.Length >= 2)
+            string reason = command.Length == 1 ? "N/A" : command[1];
+            UnturnedChat.Say(GlobalBan.Instance.Translate("command_kick_public_reason", playerToKick.CharacterName, reason));
+            Provider.kick(playerToKick.CSteamID, reason);
+            Embed embed = new Embed
             {
-                UnturnedChat.Say(GlobalBan.Instance.Translate("command_kick_public_reason", playerToKick.SteamName, command[1]));
-                Provider.kick(playerToKick.CSteamID, command[1]);
-            }
-            else
-            {
-                UnturnedChat.Say(GlobalBan.Instance.Translate("command_kick_public", playerToKick.SteamName));
-                Provider.kick(playerToKick.CSteamID, GlobalBan.Instance.Translate("command_kick_private_default_reason"));
-            }
+                fields = new Field[]
+                {
+                        new Field("**Player**", playerToKick.CharacterName, true),
+                        new Field("**\t\t\tSteamID**", playerToKick.CSteamID.ToString(), true),
+                        new Field("**Reason**", reason, true),
+                        new Field("**Admin**", caller.DisplayName, true),
+                        new Field("**Map**", $"\t{Provider.map}", true)
+                },
+                color = new Random().Next(16000000)
+            };
+            GlobalBan.Instance.SendInDiscord(embed, "Kick");
         }
     }
 }
