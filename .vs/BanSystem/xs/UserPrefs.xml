@@ -2,9 +2,9 @@
   <MonoDevelop.Ide.Workbench ActiveDocument="DatabaseManager.cs">
     <Files>
       <File FileName="GlobalBan.cs" Line="50" Column="13" />
-      <File FileName="CommandBan.cs" Line="79" Column="50" />
-      <File FileName="GlobalBanConfiguration.cs" Line="1" Column="1" />
-      <File FileName="CommandUnban.cs" Line="70" Column="36" />
+      <File FileName="CommandBan.cs" />
+      <File FileName="GlobalBanConfiguration.cs" />
+      <File FileName="CommandUnban.cs" />
       <File FileName="DatabaseManager.cs" Line="167" Column="37" />
       <File FileName="CommandGetBan.cs" />
       <File FileName="CommandBan1.cs" />
