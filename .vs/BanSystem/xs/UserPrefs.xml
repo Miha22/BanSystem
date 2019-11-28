@@ -1,16 +1,17 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workbench ActiveDocument="GlobalBan.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="GlobalBanConfiguration.cs">
     <Files>
-      <File FileName="GlobalBan.cs" Line="50" Column="13" />
-      <File FileName="CommandBan.cs" />
-      <File FileName="GlobalBanConfiguration.cs" />
+      <File FileName="GlobalBan.cs" Line="441" Column="1" />
+      <File FileName="CommandBan.cs" Line="11" Column="1" />
+      <File FileName="GlobalBanConfiguration.cs" Line="22" Column="47" />
       <File FileName="CommandUnban.cs" />
-      <File FileName="DatabaseManager.cs" Line="167" Column="37" />
+      <File FileName="DatabaseManager.cs" Line="473" Column="1" />
       <File FileName="CommandGetBan.cs" />
       <File FileName="CommandBan1.cs" />
       <File FileName="Properties/AssemblyInfo.cs" />
       <File FileName="CommandKick.cs" />
-      <File FileName="DiscordWebhookMessage.cs" Line="1" Column="1" />
+      <File FileName="DiscordWebhookMessage.cs" Line="94" Column="2" />
+      <File FileName="CommandWhite.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -19,7 +20,7 @@
             <Node name="BanSystem" expanded="True">
               <Node name="References" expanded="True" />
               <Node name="Properties" expanded="True" />
-              <Node name="GlobalBan.cs" selected="True" />
+              <Node name="GlobalBanConfiguration.cs" selected="True" />
             </Node>
           </Node>
         </State>
