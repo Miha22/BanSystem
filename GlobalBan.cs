@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using Rocket.API.Collections;
 using Rocket.Core.Plugins;
-using Rocket.Unturned.Permissions;
 using SDG.Unturned;
 using Steamworks;
 using System;
@@ -43,8 +42,8 @@ namespace BanSystem
             //Console.WriteLine($"server save: {}");
             if (Configuration.Instance.API_Key == "")
                 Logger.LogWarning("[WARNING] VPN/Proxy protection is DISABLED, check your config for correct API!");
-            if (Configuration.Instance.Webhook == "")
-                Logger.LogWarning("[WARNING] WebHook reports are DISABLED, check your config for correct API!");
+            //if (Configuration.Instance.Webhook == "")
+            //    Logger.LogWarning("[WARNING] WebHook reports are DISABLED, check your config for correct API!");
 
 
                         //Arguments = $@"/c dotnet E:\Users\Deniel\Source\Repos\SocketPractiseServer\SocketPractiseServer\bin\Debug\netcoreapp2.1\SocketPractiseServer.dll"
@@ -97,6 +96,8 @@ namespace BanSystem
 
         private void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
         {
+            if (Database.IsWhite(player.CSteamID))
+                return;
             //Console.WriteLine("REJECTED ON SECOND LAYER");
             if (Database.IsBanned(player, out DateTime date))
                 Provider.kick(player.CSteamID, $"You are banned till: {date.AddHours(-UTCoffset).ToString()} UTC");
@@ -112,27 +113,27 @@ namespace BanSystem
             //Rocket.Core.Logging.Logger.Log($"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name} by M22 loaded!", ConsoleColor.Cyan);
         }
 
-        internal void SendInDiscord(Embed embed, string username)
-        {
-            try
-            {
-                SendMessageAsync(new DiscordWebhookMessage() { username = username, embeds = new Embed[] { embed } }, Configuration.Instance.Webhook);
-            }
-            catch (Exception e)
-            {
-                Logger.LogException(e);
-            }
-        }
+        //internal void SendInDiscord(Embed embed, string username)
+        //{
+        //    try
+        //    {
+        //        SendMessageAsync(new DiscordWebhookMessage() { username = username, embeds = new Embed[] { embed } }, Configuration.Instance.Webhook);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Logger.LogException(e);
+        //    }
+        //}
 
-        private void SendMessageAsync(DiscordWebhookMessage msg, string url)
-        {
-            string json = JsonConvert.SerializeObject(msg);
-            using (WebClient wc = new WebClient())
-            {
-                wc.Headers.Set(HttpRequestHeader.ContentType, "application/json");
-                wc.UploadString(url, json);
-            }
-        }
+        //private void SendMessageAsync(DiscordWebhookMessage msg, string url)
+        //{
+        //    string json = JsonConvert.SerializeObject(msg);
+        //    using (WebClient wc = new WebClient())
+        //    {
+        //        wc.Headers.Set(HttpRequestHeader.ContentType, "application/json");
+        //        wc.UploadString(url, json);
+        //    }
+        //}
 
         //private void LaunchBotAsync()
         //{
@@ -202,6 +203,7 @@ namespace BanSystem
                 }
             }
         }
+
 
         //private void IsBadIP(CSteamID steamID)
         //{

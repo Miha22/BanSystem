@@ -6,7 +6,7 @@
     <ProjectGuid>{DA8B916A-EE8B-44E2-B882-38ECB4E7C76E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>BanSystem</RootNamespace>
-    <AssemblyName>BanSystem</AssemblyName>
+    <AssemblyName>Blazethrower</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -90,6 +90,33 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="lib\System.Management.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="lib\Rocket.Core.dll" />
+    <None Include="lib\Rocket.API.dll" />
+    <None Include="lib\Assembly-CSharp.dll" />
+    <None Include="lib\I18N.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="lib\I18N.West.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="lib\Rocket.Unturned.dll" />
+    <None Include="lib\System.ComponentModel.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="lib\UnityEngine.dll" />
+    <None Include="lib\System.Transactions.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="lib\Newtonsoft.Json.dll" />
+    <None Include="lib\Assembly-CSharp-firstpass.dll" />
+    <None Include="lib\System.Data.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="lib\UnityEngine.CoreModule.dll" />
+    <None Include="lib\MySql.Data.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

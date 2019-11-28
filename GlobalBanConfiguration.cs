@@ -11,7 +11,7 @@ namespace BanSystem
         // public bool Bot_Enabled;
         //public string Bot_Token;
         //public string Cmd_Prefix;
-        public string Webhook;
+        //public string Webhook;
         //public string WebhookName;
         //public Discord.Color Discord_Ban_Color;
         public string DatabaseAddress;
@@ -26,9 +26,9 @@ namespace BanSystem
 
         public void LoadDefaults()
         {
-            Webhook = "https://discordapp.com/api/webhooks/617201018811318277/u2RV4vbtI3_r4k0mHMjfmGx_UaSt65s--m6ExTDEGEEgW0gtcsQyWlACxYLMZXAOmlEt";
+            //Webhook = "https://discordapp.com/api/webhooks/617201018811318277/u2RV4vbtI3_r4k0mHMjfmGx_UaSt65s--m6ExTDEGEEgW0gtcsQyWlACxYLMZXAOmlEt";
             //Bot_Enabled = false;
-            DatabaseAddress = "localhost";
+            DatabaseAddress = "127.0.0.1";
             DatabaseUsername = "unturned";
             DatabasePassword = "password";
             DatabaseName = "unturned";
@@ -38,7 +38,7 @@ namespace BanSystem
             DatabasePort = 3306;
             //WebhookName = "Ban";
             //KickInsteadReject = false;
-            API_Key = "NjE4NTpHNXZ1Z0ZaVkU3Mmc2SVJLN0dFWjRTWlVUYzJJRGQ2WQ==";
+            API_Key = "Njg1MzpvaDdFQmdpaG1GelZoS0E1OVJ2SDBuNVBVMUtIOTRjNw==";
             //Bot_Token = "";
             //Cmd_Prefix = "$";
             //Discord_Ban_Color = Discord.Color.Default;

@@ -8,6 +8,44 @@ using Logger = Rocket.Core.Logging.Logger;
 
 namespace BanSystem
 {
+    public class CommandWhite : IRocketCommand
+    {
+        public AllowedCaller AllowedCaller => AllowedCaller.Both;
+        public string Name => "whitelist";
+        public string Help => "whitelists player";
+        public string Syntax => "/white [player]";
+        public List<string> Aliases => new List<string> { "white" };
+        public List<string> Permissions => new List<string> { "bansystem.white" };
+
+        public void Execute(IRocketPlayer caller, string[] command)
+        {
+            try
+            {
+                if (command.Length != 1)
+                {
+                    UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_invalid_parameter") + $" Use: {Syntax}", Color.red);
+                    return;
+                }
+
+                if (!PlayerTool.tryGetSteamPlayer(command[0], out SteamPlayer targetPlayer))
+                {
+                    UnturnedChat.Say(caller, $"Unable to find player: {command[0]}", Color.red);
+                    return;
+                }
+                if (!GlobalBan.Instance.Database.WhiteList(targetPlayer.playerID.steamID))
+                {
+                    UnturnedChat.Say(caller, $"{targetPlayer.playerID.characterName} is already whitelisted!", Color.red);
+                    return;
+                }
+                UnturnedChat.Say(caller, $"{targetPlayer.playerID.characterName} was whitelisted!", Color.white);
+            }
+            catch (System.Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+        }
+    }
+
     public class CommandBan : IRocketCommand
     {
         public AllowedCaller AllowedCaller => AllowedCaller.Both;
@@ -82,20 +120,20 @@ namespace BanSystem
                     Provider.kick(targetPlayer.playerID.steamID, reason);
                 //System.Console.WriteLine("point 4");
                 UnturnedChat.Say($"{ban.Player} was banned for {reason}", Color.magenta);
-                Embed embed = new Embed
-                {
-                    fields = new Field[]
-                    {
-                        new Field("**Player**", ban.Player, true),
-                        new Field("**\t\t\tSteamID**", ban.SteamID, true),
-                        new Field("**Reason**", reason, true),
-                        new Field("**Duration**", duration == 0U ? "Permanent" : $"{duration} sec.\ntill: {System.DateTime.UtcNow.AddSeconds(duration)} UTC", true),
-                        new Field("**Admin**", caller.DisplayName, true),
-                        new Field("**Map**", $"\t{Provider.map}", true),
-                    },
-                    color = new System.Random().Next(16000000)
-                };
-                GlobalBan.Instance.SendInDiscord(embed, "Ban");
+                //Embed embed = new Embed
+                //{
+                //    fields = new Field[]
+                //    {
+                //        new Field("**Player**", ban.Player, true),
+                //        new Field("**\t\t\tSteamID**", ban.SteamID, true),
+                //        new Field("**Reason**", reason, true),
+                //        new Field("**Duration**", duration == 0U ? "Permanent" : $"{duration} sec.\ntill: {System.DateTime.UtcNow.AddSeconds(duration)} UTC", true),
+                //        new Field("**Admin**", caller.DisplayName, true),
+                //        new Field("**Map**", $"\t{Provider.map}", true),
+                //    },
+                //    color = new System.Random().Next(16000000)
+                //};
+                //GlobalBan.Instance.SendInDiscord(embed, "Ban");
             }
             catch (System.Exception ex)
             {

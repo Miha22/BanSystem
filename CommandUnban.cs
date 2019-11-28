@@ -67,17 +67,17 @@ namespace BanSystem
                 return;
             }
             UnturnedChat.Say($"The player {unban.Player} was unbanned by {caller.DisplayName}", UnityEngine.Color.magenta);
-            Embed embed = new Embed
-            {
-                fields = new Field[]
-                {
-                    new Field("**Player**", unban.Player, true),
-                    new Field("**SteamID**", unban.SteamID, true),
-                    new Field("**Admin**", caller.DisplayName, true)
-                },
-                color = new Random().Next(16000000)
-            };
-            GlobalBan.Instance.SendInDiscord(embed, "Unban");
+            //Embed embed = new Embed
+            //{
+            //    fields = new Field[]
+            //    {
+            //        new Field("**Player**", unban.Player, true),
+            //        new Field("**SteamID**", unban.SteamID, true),
+            //        new Field("**Admin**", caller.DisplayName, true)
+            //    },
+            //    color = new Random().Next(16000000)
+            //};
+            //GlobalBan.Instance.SendInDiscord(embed, "Unban");
         }
     }
 }

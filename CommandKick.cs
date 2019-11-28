@@ -59,19 +59,19 @@ namespace BanSystem
             string reason = command.Length == 1 ? "N/A" : command[1];
             UnturnedChat.Say(GlobalBan.Instance.Translate("command_kick_public_reason", playerToKick.CharacterName, reason));
             Provider.kick(playerToKick.CSteamID, reason);
-            Embed embed = new Embed
-            {
-                fields = new Field[]
-                {
-                        new Field("**Player**", playerToKick.CharacterName, true),
-                        new Field("**\t\t\tSteamID**", playerToKick.CSteamID.ToString(), true),
-                        new Field("**Reason**", reason, true),
-                        new Field("**Admin**", caller.DisplayName, true),
-                        new Field("**Map**", $"\t{Provider.map}", true)
-                },
-                color = new Random().Next(16000000)
-            };
-            GlobalBan.Instance.SendInDiscord(embed, "Kick");
+            //Embed embed = new Embed
+            //{
+            //    fields = new Field[]
+            //    {
+            //            new Field("**Player**", playerToKick.CharacterName, true),
+            //            new Field("**\t\t\tSteamID**", playerToKick.CSteamID.ToString(), true),
+            //            new Field("**Reason**", reason, true),
+            //            new Field("**Admin**", caller.DisplayName, true),
+            //            new Field("**Map**", $"\t{Provider.map}", true)
+            //    },
+            //    color = new Random().Next(16000000)
+            //};
+            //GlobalBan.Instance.SendInDiscord(embed, "Kick");
         }
     }
 }
