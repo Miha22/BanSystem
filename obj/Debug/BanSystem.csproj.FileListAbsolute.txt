@@ -89,3 +89,12 @@ E:/Users/Deniel/Documents/GitHub/BanSystem/obj/Debug/BanSystem.csprojAssemblyRef
 /Users/Test/Documents/GitHub/BanSystem/bin/Debug/UnityEngine.UnityWebRequestAssetBundleModule.dll
 /Users/Test/Documents/GitHub/BanSystem/bin/Debug/UnityEngine.WebModule.dll
 /Users/Test/Documents/GitHub/BanSystem/bin/Debug/UnityEngine.ParticlesLegacyModule.dll
+/Users/Test/Documents/GitHub/BanSystem/bin/Debug/Libraries/System.Management.dll
+/Users/Test/Documents/GitHub/BanSystem/bin/Debug/Libraries/I18N.dll
+/Users/Test/Documents/GitHub/BanSystem/bin/Debug/Libraries/I18N.West.dll
+/Users/Test/Documents/GitHub/BanSystem/bin/Debug/Libraries/System.ComponentModel.dll
+/Users/Test/Documents/GitHub/BanSystem/bin/Debug/Libraries/System.Transactions.dll
+/Users/Test/Documents/GitHub/BanSystem/bin/Debug/Libraries/Newtonsoft.Json.dll
+/Users/Test/Documents/GitHub/BanSystem/bin/Debug/Libraries/System.Data.dll
+/Users/Test/Documents/GitHub/BanSystem/bin/Debug/Libraries/MySql.Data.dll
+/Users/Test/Documents/GitHub/BanSystem/bin/Debug/System.ComponentModel.dll

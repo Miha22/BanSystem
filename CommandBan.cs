@@ -1,7 +1,6 @@
 ﻿using Rocket.API;
 using Rocket.Unturned.Chat;
 using SDG.Unturned;
-using Steamworks;
 using System.Collections.Generic;
 using UnityEngine;
 using Logger = Rocket.Core.Logging.Logger;
@@ -68,7 +67,7 @@ namespace BanSystem
                     }
                 }
                 //System.Console.WriteLine("point 0");
-                DatabaseManager.Ban ban = GlobalBan.Instance.Database.GetBan(command[0]);
+                DatabaseManager.Ban ban = GlobalBan.Instance.Database.GetBan(command[0], false);
                 //System.Console.WriteLine("point 1");
                 if (ban == null)
                 {
@@ -76,7 +75,7 @@ namespace BanSystem
                     return;
                 }
                 //System.Console.WriteLine("point 2");
-                GlobalBan.Instance.Database.BanPlayer(ban.Player, ban.SteamID, caller.DisplayName, reason, duration);//0=forever
+                GlobalBan.Instance.Database.BanPlayer(ban.Player, ban.SteamID, caller.DisplayName, reason, duration, false);//0=forever
                 //System.Console.WriteLine("point 3");
                 if (PlayerTool.tryGetSteamPlayer(command[0], out SteamPlayer targetPlayer))
                     Provider.kick(targetPlayer.playerID.steamID, reason);
@@ -91,7 +90,8 @@ namespace BanSystem
                         new Field("**Reason**", reason, true),
                         new Field("**Duration**", duration == 0U ? "Permanent" : $"{duration} sec.\ntill: {System.DateTime.UtcNow.AddSeconds(duration)} UTC", true),
                         new Field("**Admin**", caller.DisplayName, true),
-                        new Field("**Map**", $"\t{Provider.map}", true),
+                        new Field("**Server**", $"\t{GlobalBan.ServerName ?? "Local server ban"}", true),
+                        new Field("**Map**", $"\t{Provider.map}", true)
                     },
                     color = new System.Random().Next(16000000)
                 };

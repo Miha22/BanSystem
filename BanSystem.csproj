@@ -37,12 +37,6 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>lib\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="I18N.West">
-      <HintPath>lib\I18N.West.dll</HintPath>
-    </Reference>
-    <Reference Include="MySql.Data">
-      <HintPath>lib\MySql.Data.dll</HintPath>
-    </Reference>
     <Reference Include="Rocket.API">
       <HintPath>lib\Rocket.API.dll</HintPath>
     </Reference>
@@ -58,17 +52,29 @@
     <Reference Include="UnityEngine">
       <HintPath>lib\UnityEngine.dll</HintPath>
     </Reference>
+    <Reference Include="I18N">
+      <HintPath>Libraries\I18N.dll</HintPath>
+    </Reference>
+    <Reference Include="I18N.West">
+      <HintPath>Libraries\I18N.West.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data">
+      <HintPath>Libraries\MySql.Data.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>lib\Newtonsoft.Json.dll</HintPath>
+      <HintPath>Libraries\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel">
+      <HintPath>Libraries\System.ComponentModel.dll</HintPath>
     </Reference>
     <Reference Include="System.Data">
-      <HintPath>lib\System.Data.dll</HintPath>
+      <HintPath>Libraries\System.Data.dll</HintPath>
     </Reference>
     <Reference Include="System.Management">
-      <HintPath>lib\System.Management.dll</HintPath>
+      <HintPath>Libraries\System.Management.dll</HintPath>
     </Reference>
     <Reference Include="System.Transactions">
-      <HintPath>lib\System.Transactions.dll</HintPath>
+      <HintPath>Libraries\System.Transactions.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -88,9 +94,34 @@
     <Compile Include="Client.cs" />
     <Compile Include="CommandGetBan.cs" />
     <Compile Include="CommandWhite.cs" />
+    <Compile Include="ShowConnect.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Libraries\System.Management.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Libraries\I18N.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Libraries\I18N.West.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Libraries\System.ComponentModel.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Libraries\System.Transactions.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Libraries\Newtonsoft.Json.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Libraries\System.Data.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Libraries\MySql.Data.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

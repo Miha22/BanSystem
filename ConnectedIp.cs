@@ -8,6 +8,5 @@
         public string asn;
         public string isp;
         public byte block;
-        public string hostname;
     }
 }

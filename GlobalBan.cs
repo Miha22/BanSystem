@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using Rocket.API.Collections;
 using Rocket.Core.Plugins;
-using Rocket.Unturned.Permissions;
 using SDG.Unturned;
 using Steamworks;
 using System;
@@ -22,14 +21,34 @@ namespace BanSystem
         //private int _botProcessID;
         internal DatabaseManager Database;
         internal int UTCoffset { get; private set; }
+        internal static string ServerName;
 
         //public static Dictionary<CSteamID, string> Players = new Dictionary<CSteamID, string>();
+        private string GetServerName()
+        {
+            try
+            {
+                using StreamReader sr = new StreamReader(new FileStream(@"../Server/Commands.dat", FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+                string[] data = sr.ReadToEnd().Split(' ');
+                for (byte i = 0; i < data.Length - 1; i++)
+                {
+                    if (data[i].ToLower() == "name")
+                        return data[i + 1];
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            return null;
+        }
 
         protected override void Load()
         {
             Instance = this;
             UTCoffset = (int)Math.Ceiling((DateTime.Now - DateTime.UtcNow).TotalHours);
             Database = new DatabaseManager();
+            ServerName = GetServerName();
             if (DateTime.Now.Ticks > 637262027366394040)
             {
                 UnloadPlugin();
@@ -98,10 +117,26 @@ namespace BanSystem
         private void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
         {
             //Console.WriteLine("REJECTED ON SECOND LAYER");
-            if (Database.IsBanned(player, out DateTime date))
-                Provider.kick(player.CSteamID, $"You are banned till: {date.AddHours(-UTCoffset).ToString()} UTC");
-            if(IsBadIP(player.CSteamID))
+            //if (Instance.Configuration.Instance.ShowConnectInfo)
+            //{
+            //    SteamGameServerNetworking.GetP2PSessionState(player.CSteamID, out P2PSessionState_t pConnectionState);
+            //    string ip = Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
+            //    Logger.LogWarning($"Trying to connect: \nName: {player.CharacterName} \nSteamID{player.CSteamID} \nIP: {ip} \n HWID: {GetHWidString(player.Player.channel.owner.playerID.hwid)}");
+            //}
+            if (IsBadIP(player))
+            {
                 Provider.kick(player.CSteamID, $"You are using VPN. Private IPs are not allowed on this server. Turn off your proxy.");
+            }
+            else if (Database.IsBanned(player, out DateTime date, true, out string reason))
+            {
+                Provider.kick(player.CSteamID, $"{(date == DateTime.MaxValue ? "You are permanently banned on all servers!" : "You are banned on all servers till " + date.AddHours(-UTCoffset))} UTC " + $"For: {reason}");
+            }
+            else if (Database.IsBanned(player, out DateTime date2, false, out string reason2))
+                Provider.kick(player.CSteamID, $"{(date2 == DateTime.MaxValue ? "You are permanently banned on this server" : "You are banned on this server till " + date2.AddHours(-UTCoffset))} UTC " + $"For: {reason2}");
+
+
+
+            //Provider.kick(player.CSteamID, $"{date == DateTime.MaxValue ? "You are permanently banned" : }"); date.AddHours(-UTCoffset).ToString()
         }
 
         protected override void Unload()
@@ -179,9 +214,9 @@ namespace BanSystem
         //    GetResponse(player.Player.channel.owner.playerID.characterName, player.Player.channel.owner.playerID.steamID, GetHWidString(player.Player.channel.owner.playerID.hwid), ip);
         //}
 
-        private bool IsBadIP(CSteamID steamID)
+        private bool IsBadIP(UnturnedPlayer player)
         {
-            SteamGameServerNetworking.GetP2PSessionState(steamID, out P2PSessionState_t pConnectionState);
+            SteamGameServerNetworking.GetP2PSessionState(player.CSteamID, out P2PSessionState_t pConnectionState);
             string ip = Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"http://v2.api.iphub.info/ip/{ip}");
             request.Headers.Add("X-Key", $"{Configuration.Instance.API_Key}");
@@ -194,6 +229,14 @@ namespace BanSystem
                     string[] str = client.ip.Split('.');
                     byte.TryParse(str[0], out byte num1);
                     byte.TryParse(str[1], out byte num2);
+                    if (Instance.Configuration.Instance.ShowConnectInfo)
+                    {
+                        ConsoleColor def = Console.ForegroundColor;
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine($"\n| Trying to connect: \n| Name: {player.CharacterName} \n| SteamID: {player.CSteamID} \n| IP: {ip} \n| IP reputation: {(client.block == 0 ? "[Safe] Residential or business IP (i.e. safe IP)" : client.block == 1 ? "[Dangerous] Non-residential IP (hosting provider, proxy, etc.)" : "[Dangerous] Non-residential & residential IP")} \n| HWID: {GetHWidString(player.Player.channel.owner.playerID.hwid)} \n| Country: {client.countryName} \n| Internet Provider: {client.isp} \n| Autonomous System Number: {client.asn} \n");
+                        Console.ForegroundColor = def;
+                    }
+
                     //Console.WriteLine($"block: {client.block}");
                     //Console.WriteLine($"countryCode: {client.countryCode}");
                     //Console.WriteLine($"IsPrivateIP: {IsPrivateIP(num1, num2)}");
@@ -202,6 +245,7 @@ namespace BanSystem
                 }
             }
         }
+
 
         //private void IsBadIP(CSteamID steamID)
         //{

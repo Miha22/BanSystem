@@ -7,32 +7,6 @@ using Logger = Rocket.Core.Logging.Logger;
 
 namespace BanSystem
 {
-    //public class Command : IRocketCommand
-    //{
-    //    public AllowedCaller AllowedCaller => AllowedCaller.Both;
-
-    //    public string Name => "gg";
-
-    //    public string Help => "";
-
-    //    public string Syntax => "";
-
-    //    public List<string> Aliases => new List<string>();
-
-    //    public List<string> Permissions => new List<string>();
-
-    //    public void Execute(IRocketPlayer caller, string[] command)
-    //    {
-    //        System.Console.WriteLine(caller);
-    //        System.Console.WriteLine(caller.Id);
-    //        System.Console.WriteLine(caller.DisplayName);
-    //        System.Console.WriteLine(caller.IsAdmin);
-    //        Rocket.API.ConsolePlayer
-    //        Console
-    //        Console
-    //        True
-    //    }
-    //}
 
     public class CommandGetBan : IRocketCommand
     {
@@ -55,21 +29,42 @@ namespace BanSystem
                 UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_invalid_parameter") + $" Use: {Syntax}", Color.red);
                 return;
             }
-            DatabaseManager.Ban ban = GlobalBan.Instance.Database.GetBan(command[0]);
-            if(ban == null)
+            DatabaseManager.Ban banL = GlobalBan.Instance.Database.GetBan(command[0], false);
+            DatabaseManager.Ban banG = GlobalBan.Instance.Database.GetBan(command[0], false);
+
+            if (banG == null)
             {
-                UnturnedChat.Say(caller, "Player not found, try different name or steamID", Color.yellow);
-                return;
+                UnturnedChat.Say(caller, $"{command[0]} was not found in global database", Color.red);
             }
-            if(caller.DisplayName == "")
-            Console.WriteLine();
-            Logger.Log("------------------------------------------------------", ConsoleColor.Yellow);
-            Logger.Log(ban.Duration.Ticks < DateTime.Now.Ticks || ban.Duration == DateTime.MinValue ? "| Player: NOT BANNED" : "| Player: BANNED", ConsoleColor.Yellow);
-            Logger.Log($"| Player: {ban.Player}\tReason: {ban.Reason}\tAdmin: {ban.Admin}", ConsoleColor.Yellow);
-            Logger.Log($"| Ban Date: {(ban.BanDate == DateTime.MinValue ? "none" : ban.BanDate.AddHours(-GlobalBan.Instance.UTCoffset).ToString())} UTC\tBanned till: {(ban.Duration == DateTime.MaxValue ? "Permanent" : ban.Duration.Ticks < DateTime.Now.Ticks || ban.Duration == DateTime.MinValue ? "none" : ban.Duration.AddHours(-GlobalBan.Instance.UTCoffset).ToString())} UTC", ConsoleColor.Yellow);
-            Logger.Log($"| UTC Time now: {DateTime.UtcNow}", ConsoleColor.Yellow);
-            Logger.Log("------------------------------------------------------", ConsoleColor.Yellow);
-            Console.WriteLine();
+            else
+            {
+                ConsoleColor def = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"" +
+                    $"\n| \t GLOBAL CHECK\n" +
+                    $"\n| Player Status: {(banG.Duration.Ticks < DateTime.Now.Ticks || banG.Duration == DateTime.MinValue ? "CLEAN" : "BANNED")} " +
+                    $"\n| Name: {banG.Player} \t Reason: {banG.Reason} \t Admin: {banG.Admin} " +
+                    $"\n| Ban date: {(banG.BanDate == DateTime.MinValue ? "None" : banG.BanDate.AddHours(-GlobalBan.Instance.UTCoffset).ToString())} UTC \t Banned till: {(banG.Duration == DateTime.MaxValue ? "Permanent" : banG.Duration.Ticks < DateTime.Now.Ticks || banG.Duration == DateTime.MinValue ? "none" : banG.Duration.AddHours(-GlobalBan.Instance.UTCoffset).ToString())} UTC " +
+                    $"\n| UTC Time now: {DateTime.UtcNow}");
+                Console.ForegroundColor = def;
+            }
+
+            if (banL == null)
+            {
+                UnturnedChat.Say(caller, $"{command[0]} was not found in local database", Color.red);
+            }
+            else
+            {
+                ConsoleColor def = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"" +
+                    $"\n| \t LOCAL CHECK\n" +
+                    $"\n| Player Status: {(banL.Duration.Ticks < DateTime.Now.Ticks || banL.Duration == DateTime.MinValue ? "CLEAN" : "BANNED")} " +
+                    $"\n| Name: {banL.Player} \t Reason: {banL.Reason} \t Admin: {banL.Admin} " +
+                    $"\n| Ban date: {(banL.BanDate == DateTime.MinValue ? "None" : banL.BanDate.AddHours(-GlobalBan.Instance.UTCoffset).ToString())} UTC \t Banned till: {(banL.Duration == DateTime.MaxValue ? "Permanent" : banL.Duration.Ticks < DateTime.Now.Ticks || banL.Duration == DateTime.MinValue ? "none" : banL.Duration.AddHours(-GlobalBan.Instance.UTCoffset).ToString())} UTC " +
+                    $"\n| UTC Time now: {DateTime.UtcNow}");
+                Console.ForegroundColor = def;
+            }
         }
     }
 }
