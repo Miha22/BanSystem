@@ -7,14 +7,14 @@ using Logger = Rocket.Core.Logging.Logger;
 
 namespace BanSystem
 {
-    public class CommandBan : IRocketCommand
+    public class CommandNWBan : IRocketCommand
     {
         public AllowedCaller AllowedCaller => AllowedCaller.Both;
-        public string Name => "ban";
-        public string Help => "Bans player, use /help to find syntax";
-        public string Syntax => "/ban [player] \n/ban [player] [reason]\n/ban [player] [reason] [duration]";
+        public string Name => "nwban";
+        public string Help => "Bans player on all server, use /help to find syntax";
+        public string Syntax => "/nwban [player] \n/ban [player] [reason]\n/nwban [player] [reason] [duration]";
         public List<string> Aliases => new List<string>();
-        public List<string> Permissions => new List<string> { "bansystem.ban" };
+        public List<string> Permissions => new List<string> { "bansystem.nwban" };
 
         public void Execute(IRocketPlayer caller, string[] command)
         {
@@ -39,7 +39,7 @@ namespace BanSystem
 
                 if (command.Length == 3 && !uint.TryParse(command[2], out duration))
                 {
-                    if(!uint.TryParse(command[2].Substring(0, 1), out uint mult))
+                    if (!uint.TryParse(command[2].Substring(0, 1), out uint mult))
                     {
                         UnturnedChat.Say(caller, "Unabled to ban player: Invalid ban time", Color.red);
                         return;
@@ -67,20 +67,19 @@ namespace BanSystem
                     }
                 }
                 //System.Console.WriteLine("point 0");
-                DatabaseManager.Ban ban = GlobalBan.Instance.Database.GetBan(command[0], false);
+                DatabaseManager.Ban ban = GlobalBan.Instance.Database.GetBan(command[0], true);
                 //System.Console.WriteLine("point 1");
                 if (ban == null)
                 {
-                    UnturnedChat.Say(caller, $"{command[0]} was not found in local database, try different name or steamID", Color.red);
+                    UnturnedChat.Say(caller, $"{command[0]} was not found in global database, try different name or steamID", Color.red);
                     return;
                 }
                 //System.Console.WriteLine("point 2");
-                GlobalBan.Instance.Database.BanPlayer(ban.Player, ban.SteamID, caller.DisplayName, reason, duration, false);//0=forever
+                GlobalBan.Instance.Database.BanPlayer(ban.Player, ban.SteamID, caller.DisplayName, reason, duration, true);//0=forever
                 //System.Console.WriteLine("point 3");
                 if (PlayerTool.tryGetSteamPlayer(command[0], out SteamPlayer targetPlayer))
                     Provider.kick(targetPlayer.playerID.steamID, GlobalBan.Instance.Translate("ban_private", reason, caller.DisplayName));
                 //System.Console.WriteLine("point 4");
-                //UnturnedChat.Say($"{ban.Player} was banned for {reason}", Color.magenta);
                 UnturnedChat.Say(GlobalBan.Instance.Translate("ban_public", ban.Player, reason, caller.DisplayName), Color.magenta);
                 Embed embed = new Embed
                 {
@@ -92,12 +91,13 @@ namespace BanSystem
                         new Field("**Reason**", reason, true),
                         new Field("**Duration**", duration == 0U ? "Permanent" : $"{duration} sec.\ntill: {System.DateTime.UtcNow.AddSeconds(duration)} UTC", true),
                         new Field("**Admin**", caller.DisplayName, true),
+                        new Field("**Server**", $"\tAll", true),
                         new Field("**Map**", $"\t{Provider.map}", true)
                     },
-                    //color = new System.Random().Next(16000000)
+                    //color = new System.Random().Next(16000000)discord_bot_ban_color
                     color = int.Parse(GlobalBan.Instance.Translate("discord_bot_ban_color"))
                 };
-                GlobalBan.Instance.SendInDiscord(embed, GlobalBan.Instance.Translate("discord_bot_localban_name"));
+                GlobalBan.Instance.SendInDiscord(embed, GlobalBan.Instance.Translate("discord_bot_globalban_name"));
             }
             catch (System.Exception ex)
             {

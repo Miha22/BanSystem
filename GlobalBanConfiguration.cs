@@ -13,6 +13,7 @@ namespace BanSystem
         //public string Cmd_Prefix;
         public string Webhook;
         public bool ShowConnectInfo;
+        //public bool LimbVPNs;
         //public string WebhookName;
         //public Discord.Color Discord_Ban_Color;
         public string DatabaseAddress;

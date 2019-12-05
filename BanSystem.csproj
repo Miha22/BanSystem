@@ -95,6 +95,10 @@
     <Compile Include="CommandGetBan.cs" />
     <Compile Include="CommandWhite.cs" />
     <Compile Include="ShowConnect.cs" />
+    <Compile Include="CommandNwBan.cs" />
+    <Compile Include="CommandNwUnban.cs" />
+    <Compile Include="ForGays.cs" />
+    <Compile Include="Provider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

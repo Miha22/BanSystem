@@ -14,8 +14,9 @@ namespace BanSystem
         public DatabaseManager()
         {
             _ = new I18N.West.CP1250();
+
             CheckSchema(GlobalBan.Instance.Configuration.Instance.GlobalDatabaseTableName, "CREATE TABLE `" + GlobalBan.Instance.Configuration.Instance.GlobalDatabaseTableName + "` (`id` int(11) NOT NULL AUTO_INCREMENT,`steamId` varchar(32) NOT NULL,`ip` varchar(15) DEFAULT NULL,`hwid` varchar(256) DEFAULT NULL,`admin` varchar(32) NOT NULL,`reason` varchar(512) DEFAULT NULL,`charactername` varchar(255) DEFAULT NULL,`banDuration` int NULL,`banTime` timestamp NULL ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (`id`));");
-            CheckSchema(GlobalBan.Instance.Configuration.Instance.GlobalDatabaseTableName, "CREATE TABLE `" + GlobalBan.Instance.Configuration.Instance.LocalDatabaseTableName + "` (`id` int(11) NOT NULL AUTO_INCREMENT,`steamId` varchar(32) NOT NULL,`ip` varchar(15) DEFAULT NULL,`hwid` varchar(256) DEFAULT NULL,`admin` varchar(32) NOT NULL,`reason` varchar(512) DEFAULT NULL,`charactername` varchar(255) DEFAULT NULL,`banDuration` int NULL,`banTime` timestamp NULL ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (`id`));");
+            CheckSchema(GlobalBan.Instance.Configuration.Instance.LocalDatabaseTableName, "CREATE TABLE `" + GlobalBan.Instance.Configuration.Instance.LocalDatabaseTableName + "` (`id` int(11) NOT NULL AUTO_INCREMENT,`steamId` varchar(32) NOT NULL,`ip` varchar(15) DEFAULT NULL,`hwid` varchar(256) DEFAULT NULL,`admin` varchar(32) NOT NULL,`reason` varchar(512) DEFAULT NULL,`charactername` varchar(255) DEFAULT NULL,`banDuration` int NULL,`banTime` timestamp NULL ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (`id`));");
             CheckSchema(GlobalBan.Instance.Configuration.Instance.DatabaseTableNameWhites, "CREATE TABLE `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableNameWhites + "` (`id` int(11) NOT NULL AUTO_INCREMENT,`steamId` varchar(32) NOT NULL,PRIMARY KEY (`id`));");
         }
 
@@ -24,6 +25,8 @@ namespace BanSystem
             MySqlConnection connection = null;
             try
             {
+                if (GlobalBan.Instance.Configuration.Instance.DatabaseAddress == "localhost")
+                    GlobalBan.Instance.Configuration.Instance.DatabaseAddress = "127.0.0.1";
                 if (GlobalBan.Instance.Configuration.Instance.DatabasePort == 0)
                     GlobalBan.Instance.Configuration.Instance.DatabasePort = 3306;
                 connection = new MySqlConnection(string.Format("SERVER={0};DATABASE={1};UID={2};PASSWORD={3};PORT={4};", GlobalBan.Instance.Configuration.Instance.DatabaseAddress, GlobalBan.Instance.Configuration.Instance.DatabaseName, GlobalBan.Instance.Configuration.Instance.DatabaseUsername, GlobalBan.Instance.Configuration.Instance.DatabasePassword, GlobalBan.Instance.Configuration.Instance.DatabasePort == 0 ? 3306 : GlobalBan.Instance.Configuration.Instance.DatabasePort));
@@ -66,21 +69,23 @@ namespace BanSystem
                     //Console.WriteLine("point 1");
                     MySqlDataReader res = command.ExecuteReader(System.Data.CommandBehavior.SingleRow);
                     //Console.WriteLine($"res != null: {res != null}, res.HasRows: {res.HasRows}");
-                    bool flag = res != null && res.HasRows;
                     //Console.WriteLine($"res != null: {res != null}, res.Read(): {res.Read()}, res.HasRows: {res.HasRows}");
                     //Console.WriteLine($"flag: {flag}");
-                    if (flag)
+                    if (res != null && res.HasRows)
                     {
                         res.Read();
                         //Console.WriteLine("point 1.5");
+                        //Console.WriteLine("ban dur");
+                       // Console.WriteLine(res["banDuration"] == DBNull.Value);
                         //date = ((DateTime)res["banTime"]).AddSeconds(res.GetInt32("banDuration")).AddHours(-GlobalBan.Instance.UTCoffset);
                         date = res["banDuration"] == DBNull.Value ? DateTime.MaxValue : ((DateTime)res["banTime"]).AddSeconds(res.GetInt32("banDuration"));
-                        reason = res["reason"].ToString();
+                        reason = (string)res["reason"];
                         connection.Close();
                         connection.Dispose();
                         return true;
                     }
                     connection.Close();
+                    connection.Dispose();
                 }
 
                 using (MySqlConnection connection = CreateConnection())
@@ -120,7 +125,7 @@ namespace BanSystem
                 Logger.LogException(ex, ex.Message);
             }
             date = DateTime.Now;
-            reason = null;
+            reason = string.Empty;
             return false;
         }
         //UPDATE `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` SET `charactername`= '" + player.CharacterName.ToLower() + "' WHERE  `id`=1;

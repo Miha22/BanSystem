@@ -3,7 +3,6 @@ using Rocket.Unturned.Chat;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Logger = Rocket.Core.Logging.Logger;
 
 namespace BanSystem
 {
@@ -26,11 +25,11 @@ namespace BanSystem
         {
             if (command.Length != 1)
             {
-                UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_invalid_parameter") + $" Use: {Syntax}", Color.red);
+                UnturnedChat.Say(caller, GlobalBan.Instance.Translate("invalid_command", Syntax), Color.red);
                 return;
             }
             DatabaseManager.Ban banL = GlobalBan.Instance.Database.GetBan(command[0], false);
-            DatabaseManager.Ban banG = GlobalBan.Instance.Database.GetBan(command[0], false);
+            DatabaseManager.Ban banG = GlobalBan.Instance.Database.GetBan(command[0], true);
 
             if (banG == null)
             {

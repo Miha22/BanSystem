@@ -10,6 +10,7 @@ using Rocket.Unturned;
 using Rocket.Unturned.Player;
 using System.Net;
 using System.IO;
+using Rocket.Unturned.Permissions;
 
 namespace BanSystem
 {
@@ -29,18 +30,20 @@ namespace BanSystem
             try
             {
                 using StreamReader sr = new StreamReader(new FileStream(@"../Server/Commands.dat", FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
-                string[] data = sr.ReadToEnd().Split(' ');
-                for (byte i = 0; i < data.Length - 1; i++)
+                //string[] data = sr.ReadToEnd().Split(' ');
+                while (!sr.EndOfStream)
                 {
-                    if (data[i].ToLower() == "name")
-                        return data[i + 1];
+                    string row = sr.ReadLine();
+                    string[] data = row.Split(' ');
+                    if(data[0].ToLower() == "name")
+                        return row.Substring(data[0].Length + 1);
                 }
+                return null;
             }
             catch (Exception)
             {
                 return null;
             }
-            return null;
         }
 
         protected override void Load()
@@ -112,6 +115,41 @@ namespace BanSystem
             //UnturnedPermissions.OnJoinRequested += Events_OnJoinRequested;
             U.Events.OnPlayerConnected += RocketServerEvents_OnPlayerConnected;
             Logger.Log($"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name} loaded!", ConsoleColor.Cyan);
+            //UnturnedPermissions.OnJoinRequested += UnturnedPermissions_OnJoinRequested;
+        }
+
+        //private void UnturnedPermissions_OnJoinRequested(CSteamID player, ref ESteamRejection? rejectionReason)
+        //{
+        //    rejectionReason = ESteamRejection.
+        //}
+
+        private void Reject(CSteamID steamID, string reason)
+        {
+            for (int index = 0; index < Provider.pending.Count; ++index)
+            {
+                if (Provider.pending[index].playerID.steamID == steamID)
+                {
+                    //switch (rejection)
+                    //{
+                    //    case ESteamRejection.AUTH_VAC_BAN:
+                    //        ChatManager.say(SDG.Unturned.Provider.pending[index].playerID.playerName + " was banned by VAC", Color.yellow, false);
+                    //        break;
+                    //    case ESteamRejection.AUTH_PUB_BAN:
+                    //        ChatManager.say(SDG.Unturned.Provider.pending[index].playerID.playerName + " was banned by BattlEye", Color.yellow, false);
+                    //        break;
+                    //}
+                    if (Provider.pending[index].inventoryResult != SteamInventoryResult_t.Invalid)
+                    {
+                        SteamGameServerInventory.DestroyResult(Provider.pending[index].inventoryResult);
+                        Provider.pending[index].inventoryResult = SteamInventoryResult_t.Invalid;
+                    }
+                    Provider.pending.RemoveAt(index);
+                    break;
+                }
+            }
+            byte[] bytes = SteamPacker.getBytes(0, out int size, (object)(byte)10, (object)reason);
+            Provider.send(steamID, ESteamPacket.DISCONNECTED, bytes, size, 0);
+            SteamGameServer.EndAuthSession(steamID);
         }
 
         private void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
@@ -123,18 +161,34 @@ namespace BanSystem
             //    string ip = Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
             //    Logger.LogWarning($"Trying to connect: \nName: {player.CharacterName} \nSteamID{player.CSteamID} \nIP: {ip} \n HWID: {GetHWidString(player.Player.channel.owner.playerID.hwid)}");
             //}
-            if (IsBadIP(player))
+            try
             {
-                Provider.kick(player.CSteamID, $"You are using VPN. Private IPs are not allowed on this server. Turn off your proxy.");
+                if (IsBadIP(player))
+                {
+                    //Provider.kick(player.CSteamID, Translate("join_vpn_detected"));
+                    //Provider.clients[0].
+                    Reject(player.CSteamID, Translate("join_vpn_detected"));
+                    return;
+                }
+                if (Database.IsBanned(player, out DateTime date, true, out string reason))
+                {
+                    Reject(player.CSteamID, $"{(date == DateTime.MaxValue ? Translate("join_global_ban_message_permanent", reason) : Translate("join_global_ban_message", date.AddHours(-UTCoffset), reason))}");
+                    return;
+                }
+
+                if (Database.IsBanned(player, out DateTime date2, false, out string reason2))
+                {
+                    //Provider.kick(player.CSteamID, $"{(date2 == DateTime.MaxValue ? Translate("join_server_ban_message_permanent", reason2) : Translate("join_server_ban_message", date2.AddHours(-UTCoffset), reason2))}");
+                    Reject(player.CSteamID, $"{(date2 == DateTime.MaxValue ? Translate("join_server_ban_message_permanent", reason2) : Translate("join_server_ban_message", date2.AddHours(-UTCoffset), reason2))}");
+                    return;
+                }
+                    
             }
-            else if (Database.IsBanned(player, out DateTime date, true, out string reason))
+            catch (Exception ex)
             {
-                Provider.kick(player.CSteamID, $"{(date == DateTime.MaxValue ? "You are permanently banned on all servers!" : "You are banned on all servers till " + date.AddHours(-UTCoffset))} UTC " + $"For: {reason}");
+                Console.WriteLine(ex.Message);
             }
-            else if (Database.IsBanned(player, out DateTime date2, false, out string reason2))
-                Provider.kick(player.CSteamID, $"{(date2 == DateTime.MaxValue ? "You are permanently banned on this server" : "You are banned on this server till " + date2.AddHours(-UTCoffset))} UTC " + $"For: {reason2}");
-
-
+            
 
             //Provider.kick(player.CSteamID, $"{date == DateTime.MaxValue ? "You are permanently banned" : }"); date.AddHours(-UTCoffset).ToString()
         }
@@ -145,6 +199,32 @@ namespace BanSystem
             //UnturnedPermissions.OnJoinRequested -= Events_OnJoinRequested;
             U.Events.OnPlayerConnected -= RocketServerEvents_OnPlayerConnected;
             //Rocket.Core.Logging.Logger.Log($"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name} by M22 loaded!", ConsoleColor.Cyan);
+        }
+
+        public override TranslationList DefaultTranslations
+        {
+            get
+            {
+                return new TranslationList {
+                    {"invalid_command","Invalid command usage. Do like this: {0}"},
+                    {"join_vpn_detected","Private connections like VPN are not allowed on this server!"},
+                    {"join_global_ban_message_permanent","You are permanently banned on all servers for: {0}"},
+                    {"join_global_ban_message","You are banned on all servers till: {0} for: {1}"},
+                    {"join_server_ban_message_permanent","You are permanently banned on this server for: {0}"},
+                    {"join_server_ban_message","You are banned on this server till: {0} for: {1}"},
+                    {"ban_public", "{0} was banned for: {1} by {2}"},
+                    {"ban_private","You were banned for: {0} by {1}"},
+                    {"unban_public", "{0} was unbanned by: {1}"},
+                    {"kick_public", "{0} was kicked for: {1} by {2}"},
+                    {"kick_private","You were kicked for: {0} by {1}"},
+                    {"discord_bot_globalban_name","Global Ban"},
+                    {"discord_bot_localban_name","Local Ban"},
+                    {"discord_bot_globalunban_name","Global Unban"},
+                    {"discord_bot_localunban_name","Local Unban"},
+                    {"discord_bot_ban_color","16711680"},
+                    {"discord_bot_unban_color","65280"}
+                };
+            }
         }
 
         internal void SendInDiscord(Embed embed, string username)
@@ -240,8 +320,8 @@ namespace BanSystem
                     //Console.WriteLine($"block: {client.block}");
                     //Console.WriteLine($"countryCode: {client.countryCode}");
                     //Console.WriteLine($"IsPrivateIP: {IsPrivateIP(num1, num2)}");
-
-                    return client.block != 0 || client.countryCode == "ZZ" || IsPrivateIP(num1, num2);
+                    //return client.block != 0 || client.countryCode == "ZZ" || IsPrivateIP(num1, num2);
+                    return client.block != 0;
                 }
             }
         }
@@ -348,8 +428,8 @@ namespace BanSystem
                     return true;
                 case 172:
                     return number2 >= 16 && number2 < 32;
-                case 192:
-                    return number2 == 168;
+                //case 192:
+                //    return number2 == 168;
                 case 169:
                     return number2 == 254;
                 default:
@@ -376,23 +456,10 @@ namespace BanSystem
         //    SendInDiscord(player, steamID.ToString(), reason == "" ? "N/A" : reason, duration, admin, Provider.map);
         //}
 
-        public override TranslationList DefaultTranslations
-        {
-            get
-            {
-                return new TranslationList() {
-                    {"default_banmessage","you were banned by {0} on {1} for {2} seconds, contact the staff if you feel this is a mistake."},
-                    {"command_generic_invalid_parameter","Invalid parameter"},
-                    {"command_generic_player_not_found","Player not found"},
-                    {"command_ban_public_reason", "The player {0} was banned for: {1}"},
-                    {"command_ban_public","The player {0} was banned"},
-                    {"command_ban_private_default_reason","you were banned from the server"},
-                    {"command_kick_public_reason", "The player {0} was kicked for: {1}"},
-                    {"command_kick_public","The player {0} was kicked"},
-                    {"command_kick_private_default_reason","you were kicked from the server"},
-                };
-            }
-        }
+
+//Provider.kick(player.CSteamID, $"{(date == DateTime.MaxValue ? "You are permanently banned on all servers!" : "You are banned on all servers till " + date.AddHours(-UTCoffset))} UTC " + $"For: {reason}");
+//Provider.kick(player.CSteamID, $"{(date2 == DateTime.MaxValue ? "You are permanently banned on this server" : "You are banned on this server till " + date2.AddHours(-UTCoffset))} UTC " + $"For: {reason2}");
+                
 
         //public static KeyValuePair<CSteamID, string> GetPlayer(string search)
         //{
