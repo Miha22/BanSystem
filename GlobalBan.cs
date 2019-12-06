@@ -152,6 +152,7 @@ namespace BanSystem
             SteamGameServer.EndAuthSession(steamID);
         }
 
+
         private void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
         {
             //Console.WriteLine("REJECTED ON SECOND LAYER");
