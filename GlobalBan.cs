@@ -217,13 +217,15 @@ namespace BanSystem
                     {"ban_private","You were banned for: {0} by {1}"},
                     {"unban_public", "{0} was unbanned by: {1}"},
                     {"kick_public", "{0} was kicked for: {1} by {2}"},
-                    {"kick_private","You were kicked for: {0} by {1}"},
+                    {"kick_private","{0} by {1}"},
                     {"discord_bot_globalban_name","Global Ban"},
                     {"discord_bot_localban_name","Local Ban"},
+                    {"discord_bot_kick_name","Kick"},
                     {"discord_bot_globalunban_name","Global Unban"},
                     {"discord_bot_localunban_name","Local Unban"},
                     {"discord_bot_ban_color","16711680"},
-                    {"discord_bot_unban_color","65280"}
+                    {"discord_bot_unban_color","65280"},
+                    {"discord_bot_kick_color","3875327"}
                 };
             }
         }

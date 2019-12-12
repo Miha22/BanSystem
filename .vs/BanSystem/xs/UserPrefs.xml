@@ -1,16 +1,8 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workbench ActiveDocument="GlobalBan.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="CommandKick.cs">
     <Files>
-      <File FileName="GlobalBan.cs" Line="154" Column="1" />
-      <File FileName="CommandBan.cs" />
-      <File FileName="CommandNwBan.cs" />
-      <File FileName="CommandUnban.cs" />
-      <File FileName="CommandNwUnban.cs" />
-      <File FileName="DatabaseManager.cs" />
-      <File FileName="CommandGetBan.cs" />
-      <File FileName="ForGays.cs" />
-      <File FileName="Provider.cs" />
-      <File FileName="ShowConnect.cs" />
+      <File FileName="GlobalBan.cs" Line="228" Column="57" />
+      <File FileName="CommandKick.cs" Line="66" Column="18" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -19,7 +11,7 @@
             <Node name="BanSystem" expanded="True">
               <Node name="References" expanded="True" />
               <Node name="Libraries" expanded="True" />
-              <Node name="GlobalBan.cs" selected="True" />
+              <Node name="CommandKick.cs" selected="True" />
             </Node>
           </Node>
         </State>
