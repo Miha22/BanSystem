@@ -1,8 +1,7 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workbench ActiveDocument="CommandKick.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="GlobalBan.cs">
     <Files>
-      <File FileName="GlobalBan.cs" Line="228" Column="57" />
-      <File FileName="CommandKick.cs" Line="66" Column="18" />
+      <File FileName="GlobalBan.cs" Line="171" Column="55" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -11,7 +10,7 @@
             <Node name="BanSystem" expanded="True">
               <Node name="References" expanded="True" />
               <Node name="Libraries" expanded="True" />
-              <Node name="CommandKick.cs" selected="True" />
+              <Node name="GlobalBan.cs" selected="True" />
             </Node>
           </Node>
         </State>

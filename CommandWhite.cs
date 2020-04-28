@@ -26,17 +26,18 @@ namespace BanSystem
                     return;
                 }
 
-                if (!PlayerTool.tryGetSteamPlayer(command[0], out SteamPlayer targetPlayer))
+                DatabaseManager.Ban ban = GlobalBan.Instance.Database.GetBan(command[0], false);
+                if (ban == null)
                 {
-                    UnturnedChat.Say(caller, $"Unable to find player: {command[0]}", Color.red);
+                    UnturnedChat.Say(caller, $"{command[0]} was not found in local database, try different name or steamID", Color.red);
                     return;
                 }
-                if (!GlobalBan.Instance.Database.WhiteList(targetPlayer.playerID.steamID))
+                if (!GlobalBan.Instance.Database.WhiteList(ban.SteamID))
                 {
-                    UnturnedChat.Say(caller, $"{targetPlayer.playerID.characterName} is already whitelisted!", Color.red);
+                    UnturnedChat.Say(caller, $"{ban.Player} is already whitelisted!", Color.red);
                     return;
                 }
-                UnturnedChat.Say(caller, $"{targetPlayer.playerID.characterName} was whitelisted!", Color.white);
+                UnturnedChat.Say(caller, $"{ban.Player} was whitelisted!", Color.white);
             }
             catch (System.Exception ex)
             {

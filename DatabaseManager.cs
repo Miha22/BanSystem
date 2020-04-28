@@ -38,12 +38,12 @@ namespace BanSystem
             return connection;
         }
 
-        public bool IsWhite(CSteamID player)
+        public bool IsWhite(string steamID)
         {
             using (MySqlConnection connection = CreateConnection())
             {
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "select 1 from `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableNameWhites + "` WHERE (`steamId` = '" + player.ToString() + "');";
+                command.CommandText = "select 1 from `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableNameWhites + "` WHERE (`steamId` = '" + steamID + "');";
                 connection.Open();
                 //Console.WriteLine("point 1");
                 object res = command.ExecuteScalar();
@@ -346,7 +346,7 @@ namespace BanSystem
         //    return false;
         //}
 
-        public bool WhiteList(CSteamID steamid)
+        public bool WhiteList(string steamid)
         {
             if (IsWhite(steamid))
                 return false;
@@ -354,7 +354,7 @@ namespace BanSystem
             {
                 MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
-                command.Parameters.AddWithValue("@steamid", steamid.ToString());
+                command.Parameters.AddWithValue("@steamid", steamid);
                 //command.CommandText = "insert into `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableName + "` (`steamId`,`ip`,`hwid`,`admin`,`banMessage`,`charactername`,`banTime`,`banDuration`) values(@csteamid,@ip,@hwid,@admin,@banMessage,@charactername,now(),@banDuration);";
                 command.CommandText = "insert into `" + GlobalBan.Instance.Configuration.Instance.DatabaseTableNameWhites + "` (`steamId`) values(@steamid);";
                 connection.Open();

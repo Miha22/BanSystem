@@ -164,6 +164,8 @@ namespace BanSystem
             //}
             try
             {
+                if (Database.IsWhite(player.CSteamID.ToString()))
+                    return;
                 if (IsBadIP(player))
                 {
                     //Provider.kick(player.CSteamID, Translate("join_vpn_detected"));

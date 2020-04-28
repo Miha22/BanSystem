@@ -90,7 +90,7 @@ namespace BanSystem
                         new Field("**Player**", ban.Player, true),
                         new Field("**SteamID**", ban.SteamID, true),
                         new Field("**Reason**", reason, true),
-                        new Field("**Duration**", duration == 0U ? "Permanent" : $"{duration} sec.\ntill: {System.DateTime.UtcNow.AddSeconds(duration)} UTC", true),
+                        new Field("**Duration**", duration == 0U ? "Permanent" : $"{duration} seconds.\ntill: {System.DateTime.UtcNow.AddSeconds(duration)} UTC", true),
                         new Field("**Admin**", caller.DisplayName, true),
                         new Field("**Map**", $"\t{Provider.map}", true)
                     },
