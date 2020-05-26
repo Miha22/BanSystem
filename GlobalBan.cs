@@ -155,6 +155,7 @@ namespace BanSystem
 
         private void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
         {
+            SteamGameServerNetworking.GetP2PSessionState(player.CSteamID, out P2PSessionState_t pConnectionState);
             //Console.WriteLine("REJECTED ON SECOND LAYER");
             //if (Instance.Configuration.Instance.ShowConnectInfo)
             //{
@@ -164,7 +165,7 @@ namespace BanSystem
             //}
             try
             {
-                if (Database.IsWhite(player.CSteamID.ToString()))
+                if (Database.IsWhite(Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP)))
                     return;
                 if (IsBadIP(player))
                 {
@@ -173,18 +174,18 @@ namespace BanSystem
                     Reject(player.CSteamID, Translate("join_vpn_detected"));
                     return;
                 }
-                if (Database.IsBanned(player, out DateTime date, true, out string reason))
+                if (Database.IsBanned(player, out DateTime date, out string reason))
                 {
-                    Reject(player.CSteamID, $"{(date == DateTime.MaxValue ? Translate("join_global_ban_message_permanent", reason) : Translate("join_global_ban_message", date.AddHours(-UTCoffset), reason))}");
+                    Reject(player.CSteamID, $"{(date == DateTime.MaxValue ? Translate("join_global_ban_message_permanent", reason) : Translate("join_global_ban_message", date.AddHours(-UTCoffset).ToString("dddd, dd MMMM yyyy HH:mm:ss"), reason))}");
                     return;
                 }
 
-                if (Database.IsBanned(player, out DateTime date2, false, out string reason2))
-                {
-                    //Provider.kick(player.CSteamID, $"{(date2 == DateTime.MaxValue ? Translate("join_server_ban_message_permanent", reason2) : Translate("join_server_ban_message", date2.AddHours(-UTCoffset), reason2))}");
-                    Reject(player.CSteamID, $"{(date2 == DateTime.MaxValue ? Translate("join_server_ban_message_permanent", reason2) : Translate("join_server_ban_message", date2.AddHours(-UTCoffset), reason2))}");
-                    return;
-                }
+                //if (Database.IsBanned(player, out DateTime date2, false, out string reason2))
+                //{
+                //    //Provider.kick(player.CSteamID, $"{(date2 == DateTime.MaxValue ? Translate("join_server_ban_message_permanent", reason2) : Translate("join_server_ban_message", date2.AddHours(-UTCoffset), reason2))}");
+                //    Reject(player.CSteamID, $"{(date2 == DateTime.MaxValue ? Translate("join_server_ban_message_permanent", reason2) : Translate("join_server_ban_message", date2.AddHours(-UTCoffset), reason2))}");
+                //    return;
+                //}
                     
             }
             catch (Exception ex)

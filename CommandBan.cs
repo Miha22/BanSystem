@@ -67,7 +67,7 @@ namespace BanSystem
                     }
                 }
                 //System.Console.WriteLine("point 0");
-                DatabaseManager.Ban ban = GlobalBan.Instance.Database.GetBan(command[0], false);
+                DatabaseManager.Ban ban = GlobalBan.Instance.Database.GetBan(command[0]);
                 //System.Console.WriteLine("point 1");
                 if (ban == null)
                 {

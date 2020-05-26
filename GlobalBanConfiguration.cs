@@ -20,9 +20,9 @@ namespace BanSystem
         public string DatabaseUsername;
         public string DatabasePassword;
         public string DatabaseName;
-        public string GlobalDatabaseTableName;
-        public string LocalDatabaseTableName;
-        public string DatabaseTableNameWhites;
+        public string DatabaseBanlist;
+        //public string LocalDatabaseTableName;
+        public string DatabaseWhitelist;
         //public int KickInterval = 10;
         public int DatabasePort;
         //public bool KickInsteadReject;
@@ -36,9 +36,9 @@ namespace BanSystem
             DatabasePassword = "password";
             DatabaseName = "unturned";
             //KickInterval = 10;
-            GlobalDatabaseTableName = "bansystem.globalbanlist";
-            LocalDatabaseTableName = "bansystem.localbanlist";
-            DatabaseTableNameWhites = "bansystem.whitelist";
+            DatabaseBanlist = "bansystem.banlist";
+            //LocalDatabaseTableName = "bansystem.localbanlist";
+            DatabaseWhitelist = "bansystem.whitelist";
             DatabasePort = 3306;
             //WebhookName = "Ban";
             //KickInsteadReject = false;

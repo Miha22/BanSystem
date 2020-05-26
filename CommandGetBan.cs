@@ -29,7 +29,7 @@ namespace BanSystem
                 return;
             }
             //DatabaseManager.Ban banL = GlobalBan.Instance.Database.GetBan(command[0], false);
-            DatabaseManager.Ban banG = GlobalBan.Instance.Database.GetBan(command[0], true);
+            DatabaseManager.Ban banG = GlobalBan.Instance.Database.GetBan(command[0]);
 
             if (banG == null)
             {
