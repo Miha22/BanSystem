@@ -1,11 +1,12 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workbench ActiveDocument="CommandWhite.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="DatabaseManager.cs">
     <Files>
       <File FileName="CommandWhite.cs" Line="44" Column="105" />
-      <File FileName="GlobalBan.cs" Line="168" Column="35" />
-      <File FileName="CommandNwBan.cs" />
+      <File FileName="GlobalBan.cs" Line="170" Column="37" />
+      <File FileName="CommandNwBan.cs" Line="1" Column="1" />
       <File FileName="CommandBan.cs" />
-      <File FileName="GlobalBanConfiguration.cs" Line="1" Column="1" />
+      <File FileName="GlobalBanConfiguration.cs" />
+      <File FileName="DatabaseManager.cs" Line="70" Column="60" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -14,7 +15,7 @@
             <Node name="BanSystem" expanded="True">
               <Node name="References" expanded="True" />
               <Node name="Libraries" expanded="True" />
-              <Node name="CommandWhite.cs" selected="True" />
+              <Node name="DatabaseManager.cs" selected="True" />
             </Node>
           </Node>
         </State>
