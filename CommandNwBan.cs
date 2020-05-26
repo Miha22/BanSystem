@@ -75,7 +75,7 @@ namespace BanSystem
                     return;
                 }
                 //System.Console.WriteLine("point 2");
-                GlobalBan.Instance.Database.BanPlayer(ban.Player, ban.SteamID, caller.DisplayName, reason, duration, true);//0=forever
+                GlobalBan.Instance.Database.BanPlayer(ban.Player, ban.steamid, caller.DisplayName, reason, duration);//0=forever
                 //System.Console.WriteLine("point 3");
                 if (PlayerTool.tryGetSteamPlayer(command[0], out SteamPlayer targetPlayer))
                     Provider.kick(targetPlayer.playerID.steamID, GlobalBan.Instance.Translate("ban_private", reason, caller.DisplayName));
@@ -87,7 +87,7 @@ namespace BanSystem
                     {
                         new Field("**Server**", $"{GlobalBan.ServerName ?? "N/A"}", false),
                         new Field("**Player**", ban.Player, true),
-                        new Field("**SteamID**", ban.SteamID, true),
+                        new Field("**SteamID**", ban.steamid, true),
                         new Field("**Reason**", reason, true),
                         new Field("**Duration**", duration == 0U ? "Permanent" : $"{duration} sec.\ntill: {System.DateTime.UtcNow.AddSeconds(duration)} UTC", true),
                         new Field("**Admin**", caller.DisplayName, true),

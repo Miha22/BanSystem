@@ -73,7 +73,7 @@ namespace BanSystem
                 fields = new Field[]
                 {
                     new Field("**Player**", unban.Player, true),
-                    new Field("**SteamID**", unban.SteamID, true),
+                    new Field("**SteamID**", unban.steamid, true),
                     new Field("**Admin**", caller.DisplayName, true),
                     new Field("**On Server**", GlobalBan.ServerName ?? "N/A", true)
                 },

@@ -32,7 +32,7 @@ namespace BanSystem
                     UnturnedChat.Say(caller, $"{command[0]} was not found in local database, try different name or steamID", Color.red);
                     return;
                 }
-                if (!GlobalBan.Instance.Database.WhiteList(ban.SteamID))
+                if (!GlobalBan.Instance.Database.WhiteList(ban.steamid))
                 {
                     UnturnedChat.Say(caller, $"{ban.Player} is already whitelisted!", Color.red);
                     return;

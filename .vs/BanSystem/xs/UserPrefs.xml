@@ -1,7 +1,8 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workbench ActiveDocument="GlobalBan.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="CommandGetBan.cs">
     <Files>
-      <File FileName="GlobalBan.cs" Line="171" Column="55" />
+      <File FileName="DatabaseManager.cs" Line="205" Column="123" />
+      <File FileName="CommandGetBan.cs" Line="48" Column="47" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -10,7 +11,7 @@
             <Node name="BanSystem" expanded="True">
               <Node name="References" expanded="True" />
               <Node name="Libraries" expanded="True" />
-              <Node name="GlobalBan.cs" selected="True" />
+              <Node name="CommandGetBan.cs" selected="True" />
             </Node>
           </Node>
         </State>

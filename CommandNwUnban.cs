@@ -72,7 +72,7 @@ namespace BanSystem
                 fields = new Field[]
                 {
                     new Field("**Player**", unban.Player, true),
-                    new Field("**SteamID**", unban.SteamID, true),
+                    new Field("**SteamID**", unban.steamid, true),
                     new Field("**Admin**", caller.DisplayName, true)
                 },
                 color = int.Parse(GlobalBan.Instance.Translate("discord_bot_unban_color"))
