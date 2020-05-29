@@ -36,22 +36,23 @@ namespace BanSystem
             CheckSchema("CREATE TABLE IF NOT EXISTS `" + GlobalBan.Instance.Configuration.Instance.DatabaseWhitelist + "` (`id` INT NOT NULL AUTO_INCREMENT,`ip` varchar(64) NOT NULL, PRIMARY KEY (`id`));");
         }
 
-        internal MySqlConnection CreateConnection()
+        private MySqlConnection CreateConnection()
         {
-            MySqlConnection Connection = null;
+            MySqlConnection connection = null;
             try
             {
                 if (GlobalBan.Instance.Configuration.Instance.DatabaseAddress == "localhost")
                     GlobalBan.Instance.Configuration.Instance.DatabaseAddress = "127.0.0.1";
                 if (GlobalBan.Instance.Configuration.Instance.DatabasePort == 0)
                     GlobalBan.Instance.Configuration.Instance.DatabasePort = 3306;
-                Connection = new MySqlConnection(string.Format("SERVER={0};DATABASE={1};UID={2};PASSWORD={3};PORT={4};", GlobalBan.Instance.Configuration.Instance.DatabaseAddress, GlobalBan.Instance.Configuration.Instance.DatabaseName, GlobalBan.Instance.Configuration.Instance.DatabaseUsername, GlobalBan.Instance.Configuration.Instance.DatabasePassword, GlobalBan.Instance.Configuration.Instance.DatabasePort == 0 ? 3306 : GlobalBan.Instance.Configuration.Instance.DatabasePort));
+                connection = new MySqlConnection(string.Format("SERVER={0};DATABASE={1};UID={2};PASSWORD={3};PORT={4};", GlobalBan.Instance.Configuration.Instance.DatabaseAddress, GlobalBan.Instance.Configuration.Instance.DatabaseName, GlobalBan.Instance.Configuration.Instance.DatabaseUsername, GlobalBan.Instance.Configuration.Instance.DatabasePassword, GlobalBan.Instance.Configuration.Instance.DatabasePort == 0 ? 3306 : GlobalBan.Instance.Configuration.Instance.DatabasePort));
+                connection.Open();
             }
             catch (Exception ex)
             {
                 Logger.LogException(ex);
             }
-            return Connection;
+            return connection;
         }
 
         public bool IsWhite(string ip)
