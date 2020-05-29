@@ -56,7 +56,7 @@ namespace BanSystem
                 UnturnedChat.Say(caller, GlobalBan.Instance.Translate("invalid_command", Syntax), Color.red);
                 return;
             }
-            DatabaseManager.UnbanResult unban = GlobalBan.Instance.Database.UnbanPlayer(command[0], false);
+            DatabaseManager.UnbanResult unban = GlobalBan.Instance.Database.UnbanPlayer(command[0]);
             //if (!SteamBlacklist.unban(new CSteamID(ulong.Parse(name.Id))) || string.IsNullOrEmpty(name.Name))
             //{
             //    UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_player_not_found"));

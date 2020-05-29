@@ -36,9 +36,9 @@ namespace BanSystem
             DatabasePassword = "password";
             DatabaseName = "unturned";
             //KickInterval = 10;
-            DatabaseBanlist = "bansystem.banlist";
+            DatabaseBanlist = "banlist";
             //LocalDatabaseTableName = "bansystem.localbanlist";
-            DatabaseWhitelist = "bansystem.whitelist";
+            DatabaseWhitelist = "whitelist";
             DatabasePort = 3306;
             //WebhookName = "Ban";
             //KickInsteadReject = false;

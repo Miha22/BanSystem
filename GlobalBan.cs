@@ -52,15 +52,6 @@ namespace BanSystem
             UTCoffset = (int)Math.Ceiling((DateTime.Now - DateTime.UtcNow).TotalHours);
             Database = new DatabaseManager();
             ServerName = GetServerName();
-            if (DateTime.Now.Ticks > 637262027366394040)
-            {
-                UnloadPlugin();
-                Instance = null;
-                Database = null;
-                Logger.LogError("Plugin is outdated!");
-                return;
-            }
-
             //serverProcess = new Process();
             //Console.WriteLine($"server save: {}");
             if (Configuration.Instance.API_Key == "")
@@ -69,7 +60,7 @@ namespace BanSystem
                 Logger.LogWarning("[WARNING] WebHook reports are DISABLED, check your config for correct API!");
 
 
-                        //Arguments = $@"/c dotnet E:\Users\Deniel\Source\Repos\SocketPractiseServer\SocketPractiseServer\bin\Debug\netcoreapp2.1\SocketPractiseServer.dll"
+            //Arguments = $@"/c dotnet E:\Users\Deniel\Source\Repos\SocketPractiseServer\SocketPractiseServer\bin\Debug\netcoreapp2.1\SocketPractiseServer.dll"
             //if (Configuration.Instance.Bot_Token != "" && Configuration.Instance.Bot_Enabled)
             //{
             //    //run bot if sucess returned continue, if not UnloadPlugin()
@@ -129,15 +120,6 @@ namespace BanSystem
             {
                 if (Provider.pending[index].playerID.steamID == steamID)
                 {
-                    //switch (rejection)
-                    //{
-                    //    case ESteamRejection.AUTH_VAC_BAN:
-                    //        ChatManager.say(SDG.Unturned.Provider.pending[index].playerID.playerName + " was banned by VAC", Color.yellow, false);
-                    //        break;
-                    //    case ESteamRejection.AUTH_PUB_BAN:
-                    //        ChatManager.say(SDG.Unturned.Provider.pending[index].playerID.playerName + " was banned by BattlEye", Color.yellow, false);
-                    //        break;
-                    //}
                     if (Provider.pending[index].inventoryResult != SteamInventoryResult_t.Invalid)
                     {
                         SteamGameServerInventory.DestroyResult(Provider.pending[index].inventoryResult);
@@ -322,7 +304,6 @@ namespace BanSystem
                         Console.WriteLine($"\n| Trying to connect: \n| Name: {player.CharacterName} \n| SteamID: {player.CSteamID} \n| IP: {ip} \n| IP reputation: {(client.block == 0 ? "[Safe] Residential or business IP (i.e. safe IP)" : client.block == 1 ? "[Dangerous] Non-residential IP (hosting provider, proxy, etc.)" : "[Dangerous] Non-residential & residential IP")} \n| HWID: {GetHWidString(player.Player.channel.owner.playerID.hwid)} \n| Country: {client.countryName} \n| Internet Provider: {client.isp} \n| Autonomous System Number: {client.asn} \n");
                         Console.ForegroundColor = def;
                     }
-
                     //Console.WriteLine($"block: {client.block}");
                     //Console.WriteLine($"countryCode: {client.countryCode}");
                     //Console.WriteLine($"IsPrivateIP: {IsPrivateIP(num1, num2)}");
