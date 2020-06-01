@@ -70,6 +70,7 @@ namespace BanSystem
                     Console.WriteLine($"\n| Connected whitelisted player: \n| IP: {ip}\n");
                     Console.ForegroundColor = def;
                 }
+                CloseConnection(connection);
             }
 
             return flag;
@@ -80,14 +81,15 @@ namespace BanSystem
             date = DateTime.Now;
             reason = string.Empty;
             bool flag = false;
+
+            SteamGameServerNetworking.GetP2PSessionState(player.CSteamID, out P2PSessionState_t pConnectionState);
+            string ip = SDG.Unturned.Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
+            //string hwid = GlobalBan.Instance.GetHWidString(player.Player.channel.owner.playerID.hwid);
             using (MySqlConnection connection = CreateConnection())
             {
-                SteamGameServerNetworking.GetP2PSessionState(player.CSteamID, out P2PSessionState_t pConnectionState);
-                string ip = SDG.Unturned.Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
-                string hwid = GlobalBan.Instance.GetHWidString(player.Player.channel.owner.playerID.hwid);
 
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "select * FROM `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` WHERE (`steamid` = '" + player.CSteamID.ToString() + "' OR `hwid` = '" + hwid + "' OR `ip` = '" + ip + "' OR `charactername` = '" + player.CharacterName.Trim().ToLower() + "') AND (duration = 0 OR ((duration + UNIX_TIMESTAMP(bantime)) > UNIX_TIMESTAMP()));";
+                command.CommandText = "select * FROM `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` WHERE (`steamid` = '" + player.CSteamID.ToString() + "' OR `ip` = '" + ip + "' OR `charactername` = '" + player.CharacterName.Trim().ToLower() + "') AND (duration = 0 OR ((duration + UNIX_TIMESTAMP(bantime)) > UNIX_TIMESTAMP()));";
 
                 using (MySqlDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.SingleRow))
                 {
@@ -100,24 +102,37 @@ namespace BanSystem
 
                         flag = true;//banned
                     }
-                    else if (reader == null || !reader.HasRows)//?legacy
-                        InsertInToTable(player.CharacterName.Trim().ToLower(), player.CSteamID.ToString(), ip, hwid, "", "");
-                    else
-                    {
-                        if (!((string)reader["charactername"]).Equals(player.CharacterName))
-                            UpdateRow((int)reader["id"], "charactername", player.CharacterName);
-                        if (!((string)reader["steamid"]).Equals(player.CSteamID.ToString()))
-                            UpdateRow((int)reader["id"], "steamid", player.CSteamID.ToString());
-                        if (!((string)reader["ip"]).Equals(ip))
-                            UpdateRow((int)reader["id"], "ip", ip);
-                        if (!((string)reader["hwid"]).Equals(hwid))
-                            UpdateRow((int)reader["id"], "hwid", hwid);
-                    }
+                    CloseReader(reader);
                 }
-                
+                CloseConnection(connection);
             }
 
-            return flag;
+            if (flag)
+                return true;
+
+            using (MySqlConnection connection = CreateConnection())
+            {
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `id`,`steamid`,`ip`,`charactername`,`duration`,`bantime` from `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` WHERE (`steamid` = '" + player.CSteamID.ToString() + "' OR `ip` = '" + ip + "' OR `charactername` = '" + player.CharacterName.ToLower() + "');";
+                MySqlDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.SingleRow);
+                if (reader == null || !reader.HasRows)//?legacy
+                    InsertInToTable(player.CharacterName.Trim().ToLower(), player.CSteamID.ToString(), ip, "", "");
+                else
+                {
+                    if (!((string)reader["charactername"]).Equals(player.CharacterName))
+                        UpdateRow((int)reader["id"], "charactername", player.CharacterName);
+                    if (!((string)reader["steamid"]).Equals(player.CSteamID.ToString()))
+                        UpdateRow((int)reader["id"], "steamid", player.CSteamID.ToString());
+                    if (!((string)reader["ip"]).Equals(ip))
+                        UpdateRow((int)reader["id"], "ip", ip);
+                    //if (!((string)reader["hwid"]).Equals(hwid))
+                    //    UpdateRow((int)reader["id"], "hwid", hwid);
+                }
+                CloseReader(reader);
+                CloseConnection(connection);
+            }
+
+            return false;
         }
 
         public class Ban
@@ -140,7 +155,7 @@ namespace BanSystem
                 player = Regex.Replace(player, @"\p{Cs}", "");
                 MySqlCommand command = connection.CreateCommand();
                 command.Parameters.AddWithValue("@player", "%" + player + "%");
-                command.CommandText = "select * from `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` WHERE `steamid` like @player OR `charactername` like @player OR `ip` like @player OR `hwid` like @player;";
+                command.CommandText = "select * from `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` WHERE `steamid` like @player OR `charactername` like @player OR `ip` like @player;";
 
                 using (MySqlDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.SingleRow))
                 {
@@ -158,7 +173,9 @@ namespace BanSystem
                             Admin = (reader["admin"] == DBNull.Value || reader["admin"].ToString() == "Console") ? "Console" : (string)reader["admin"]
                         };
                     }
+                    CloseReader(reader);
                 }
+                CloseConnection(connection);
             }
 
             return ban;
@@ -172,6 +189,7 @@ namespace BanSystem
                 command.Parameters.AddWithValue("@value", value);
                 command.CommandText = "UPDATE `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` SET `" + column + "` = @value WHERE `id` = '" + id + "';";
                 command.ExecuteNonQuery();
+                CloseConnection(connection);
             }
         }
 
@@ -182,6 +200,7 @@ namespace BanSystem
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = query;
                 command.ExecuteNonQuery();
+                CloseConnection(connection);
             }
         }
 
@@ -195,6 +214,7 @@ namespace BanSystem
                 command.CommandText = "UPDATE `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` SET `duration` = @duration,`bantime` = now(),`admin` = '" + admin + "',`reason` = '" + reason + "' WHERE `charactername` = '" + characterName + "' AND `steamid` = '" + steamid + "';";
                 
                 command.ExecuteNonQuery();
+                CloseConnection(connection);
             }
         }
 
@@ -207,13 +227,14 @@ namespace BanSystem
                 MySqlCommand command = connection.CreateCommand();
                 command.Parameters.AddWithValue("@ip", ip);
                 command.CommandText = "insert into `" + GlobalBan.Instance.Configuration.Instance.DatabaseWhitelist + "` (`ip`) values(@ip);";
-                command.ExecuteNonQuery();   
+                command.ExecuteNonQuery();
+                CloseConnection(connection);
             }
 
             return true;
         }
 
-        private void InsertInToTable(string characterName, string steamid, string ip, string hwid, string admin, string reason)
+        private void InsertInToTable(string characterName, string steamid, string ip, string admin, string reason)
         {
             using (MySqlConnection connection = CreateConnection())
             {
@@ -221,15 +242,16 @@ namespace BanSystem
                 MySqlCommand command = connection.CreateCommand();
                 command.Parameters.AddWithValue("@steamid", steamid);
                 command.Parameters.AddWithValue("@ip", ip);
-                command.Parameters.AddWithValue("@hwid", hwid);
+                //command.Parameters.AddWithValue("@hwid", hwid);
                 command.Parameters.AddWithValue("@admin", admin);
                 command.Parameters.AddWithValue("@charactername", characterName);
                 command.Parameters.AddWithValue("@reason", reason);
                 command.Parameters.AddWithValue("@duration", -1);
                 command.Parameters.AddWithValue("@bantime", DBNull.Value);
-                command.CommandText = "insert into `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` (`steamid`,`ip`,`hwid`,`admin`,`reason`,`charactername`,`bantime`,`duration`) values(@steamid,@ip,@hwid,@admin,@reason,@charactername,@bantime,@duration);";
+                command.CommandText = "insert into `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` (`steamid`,`ip`,`admin`,`reason`,`charactername`,`bantime`,`duration`) values(@steamid,@ip,@admin,@reason,@charactername,@bantime,@duration);";
                 
                 command.ExecuteNonQuery();
+                CloseConnection(connection);
             }
         }
 
@@ -263,10 +285,24 @@ namespace BanSystem
                             Player = (string)reader["charactername"],
                         };
                     }
+                    CloseReader(reader);
                 }
+                CloseConnection(connection);
             }
 
             return unban;
+        }
+
+        private void CloseConnection(MySqlConnection connection)
+        {
+            connection.Close();
+            connection.Dispose();
+        }
+
+        private void CloseReader(MySqlDataReader reader)
+        {
+            reader.Close();
+            reader.Dispose();
         }
     }
 }
