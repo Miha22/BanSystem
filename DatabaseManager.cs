@@ -84,12 +84,15 @@ namespace BanSystem
 
             SteamGameServerNetworking.GetP2PSessionState(player.CSteamID, out P2PSessionState_t pConnectionState);
             string ip = SDG.Unturned.Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP);
+            string name = player.CharacterName.Trim().ToLower();
             //string hwid = GlobalBan.Instance.GetHWidString(player.Player.channel.owner.playerID.hwid);
+            string steamid = player.CSteamID.ToString();
             using (MySqlConnection connection = CreateConnection())
             {
 
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "select * FROM `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` WHERE (`steamid` = '" + player.CSteamID.ToString() + "' OR `ip` = '" + ip + "' OR `charactername` = '" + player.CharacterName.Trim().ToLower() + "') AND (duration = 0 OR ((duration + UNIX_TIMESTAMP(bantime)) > UNIX_TIMESTAMP()));";
+                //looking for if player banned
+                command.CommandText = "select * FROM `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` WHERE (`steamid` = '" + steamid + "' OR `ip` = '" + ip + "' OR `charactername` = '" + name + "') AND (duration = 0 OR (duration != -1 AND (duration + UNIX_TIMESTAMP(bantime)) > UNIX_TIMESTAMP()));";
 
                 using (MySqlDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.SingleRow))
                 {
@@ -113,18 +116,19 @@ namespace BanSystem
             using (MySqlConnection connection = CreateConnection())
             {
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "select `id`,`steamid`,`ip`,`charactername`,`duration`,`bantime` from `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` WHERE (`steamid` = '" + player.CSteamID.ToString() + "' OR `ip` = '" + ip + "' OR `charactername` = '" + player.CharacterName.ToLower() + "');";
+                command.CommandText = "select * from `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` WHERE (`steamid` = '" + steamid + "' OR `ip` = '" + ip + "' OR `charactername` = '" + name + "');";
                 MySqlDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.SingleRow);
                 if (reader == null || !reader.HasRows)//?legacy
-                    InsertInToTable(player.CharacterName.Trim().ToLower(), player.CSteamID.ToString(), ip, "", "");
+                    InsertInToTable(name, player.CSteamID.ToString(), ip, "", "");
                 else
                 {
-                    if (!((string)reader["charactername"]).Equals(player.CharacterName))
-                        UpdateRow((int)reader["id"], "charactername", player.CharacterName);
-                    if (!((string)reader["steamid"]).Equals(player.CSteamID.ToString()))
-                        UpdateRow((int)reader["id"], "steamid", player.CSteamID.ToString());
+                    int id = (int)reader["id"];
+                    if (!((string)reader["charactername"]).Equals(name))
+                        UpdateRow(id, "charactername", name);
+                    if (!((string)reader["steamid"]).Equals(steamid))
+                        UpdateRow(id, "steamid", steamid);
                     if (!((string)reader["ip"]).Equals(ip))
-                        UpdateRow((int)reader["id"], "ip", ip);
+                        UpdateRow(id, "ip", ip);
                     //if (!((string)reader["hwid"]).Equals(hwid))
                     //    UpdateRow((int)reader["id"], "hwid", hwid);
                 }
@@ -152,7 +156,7 @@ namespace BanSystem
             Ban ban = null;
             using (MySqlConnection connection = CreateConnection())
             {
-                player = Regex.Replace(player, @"\p{Cs}", "");
+                //player = Regex.Replace(player, @"\p{Cs}", "");
                 MySqlCommand command = connection.CreateCommand();
                 command.Parameters.AddWithValue("@player", "%" + player + "%");
                 command.CommandText = "select * from `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` WHERE `steamid` like @player OR `charactername` like @player OR `ip` like @player;";
@@ -204,14 +208,18 @@ namespace BanSystem
             }
         }
 
-        public void BanPlayer(string characterName, string steamid, string admin, string reason, uint duration)
+        public void BanPlayer(string ip, string steamid, string admin, string reason, uint duration)
         {
             using (MySqlConnection connection = CreateConnection())
             {
-                characterName = Regex.Replace(characterName, @"\p{Cs}", "");
+                //characterName = Regex.Replace(characterName, @"\p{Cs}", "");
                 MySqlCommand command = connection.CreateCommand();
                 command.Parameters.AddWithValue("@duration", duration);
-                command.CommandText = "UPDATE `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` SET `duration` = @duration,`bantime` = now(),`admin` = '" + admin + "',`reason` = '" + reason + "' WHERE `charactername` = '" + characterName + "' AND `steamid` = '" + steamid + "';";
+                command.Parameters.AddWithValue("@ip", ip);
+                command.Parameters.AddWithValue("@steamid", steamid);
+                command.Parameters.AddWithValue("@admin", admin);
+                command.Parameters.AddWithValue("@reason", reason);
+                command.CommandText = "UPDATE `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` SET `duration` = @duration,`bantime` = now(),`admin` = @admin,`reason` = @reason WHERE `ip` = @ip AND `steamid` = @steamid;";
                 
                 command.ExecuteNonQuery();
                 CloseConnection(connection);
@@ -269,7 +277,7 @@ namespace BanSystem
                 MySqlCommand command = connection.CreateCommand();
                 command.Parameters.AddWithValue("@player", "%" + player + "%");
                 command.Parameters.AddWithValue("@bantime", DBNull.Value);
-                command.CommandText = "UPDATE `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` SET `duration` = '" + -1 + "',`bantime` = @bantime,`admin` = '" + "" + "',`reason` = '" + "" + "' WHERE `charactername` like @player OR `steamid` like @player;";
+                command.CommandText = "UPDATE `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` SET `duration` = -1,`bantime` = @bantime,`admin` = '',`reason` = '' WHERE `charactername` like @player OR `steamid` like @player;";
                 
                 command.ExecuteNonQuery();
                 command.CommandText = "select * from `" + GlobalBan.Instance.Configuration.Instance.DatabaseBanlist + "` WHERE `charactername` like @player OR `steamid` like @player;";

@@ -71,17 +71,17 @@ namespace BanSystem
                 //System.Console.WriteLine("point 1");
                 if (ban == null)
                 {
-                    UnturnedChat.Say(caller, $"{command[0]} was not found in local database, try different name or steamID", Color.red);
+                    UnturnedChat.Say(caller, $"{command[0]} was not found in database, try different name or steamID", Color.red);
                     return;
                 }
                 //System.Console.WriteLine("point 2");
-                GlobalBan.Instance.Database.BanPlayer(ban.Player, ban.steamid, caller.DisplayName, reason, duration);//0=forever
+                GlobalBan.Instance.Database.BanPlayer(ban.ip, ban.steamid, caller.DisplayName, reason, duration);//0=forever
                 //System.Console.WriteLine("point 3");
                 if (PlayerTool.tryGetSteamPlayer(command[0], out SteamPlayer targetPlayer))
                     Provider.kick(targetPlayer.playerID.steamID, GlobalBan.Instance.Translate("ban_private", reason, caller.DisplayName));
                 //System.Console.WriteLine("point 4");
                 //UnturnedChat.Say($"{ban.Player} was banned for {reason}", Color.magenta);
-                UnturnedChat.Say(GlobalBan.Instance.Translate("ban_public", ban.Player, reason, caller.DisplayName), Color.magenta);
+                UnturnedChat.Say(GlobalBan.Instance.Translate("ban_public", ban.Player, reason, caller.DisplayName), GlobalBan.Instance.GetColor(), true);
                 Embed embed = new Embed
                 {
                     fields = new Field[]

@@ -10,6 +10,7 @@ using Rocket.Unturned;
 using Rocket.Unturned.Player;
 using System.Net;
 using System.IO;
+using UnityEngine;
 
 namespace BanSystem
 {
@@ -312,6 +313,26 @@ namespace BanSystem
             }
         }
 
+        public Color GetColor()
+        {
+            if(Configuration.Instance.BanChatColor == null)
+                return Color.magenta;
+            switch (Configuration.Instance.BanChatColor.ToLower())
+            {
+                case "red":
+                    return Color.red;
+                case "white":
+                    return Color.white;
+                case "yellow":
+                    return Color.yellow;
+                case "cyan":
+                    return Color.cyan;
+                case "magenta":
+                    return Color.magenta;
+                default:
+                    return Color.green;
+            }
+        }
 
         //private void IsBadIP(CSteamID steamID)
         //{

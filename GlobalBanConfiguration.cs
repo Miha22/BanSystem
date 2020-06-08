@@ -25,6 +25,7 @@ namespace BanSystem
         public string DatabaseWhitelist;
         //public int KickInterval = 10;
         public int DatabasePort;
+        public string BanChatColor;
         //public bool KickInsteadReject;
 
         public void LoadDefaults()
@@ -44,6 +45,7 @@ namespace BanSystem
             //KickInsteadReject = false;
             ShowConnectInfo = true;
             API_Key = "NjE4NTpHNXZ1Z0ZaVkU3Mmc2SVJLN0dFWjRTWlVUYzJJRGQ2WQ==";
+            BanChatColor = "Magenta";
             //Bot_Token = "";
             //Cmd_Prefix = "$";
             //Discord_Ban_Color = Discord.Color.Default;
