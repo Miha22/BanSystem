@@ -21,25 +21,25 @@ namespace BanSystem
             {
                 if (command.Length != 1)
                 {
-                    UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_invalid_parameter") + $" Use: {Syntax}", Color.red);
+                    UnturnedChat.Say(caller, GlobalBan.Instance.Translate("command_generic_invalid_parameter") + $" Use: {Syntax}", Color.red, true);
                     return;
                 }
 
-                DatabaseManager.Ban ban = GlobalBan.Instance.Database.GetBan(command[0].Trim().ToLower());
+                DatabaseManager.Ban ban = GlobalBan.Instance.DatabaseManager.GetBan(command[0].Trim().ToLower());
                 if (ban == null)
                 {
                     //Regex regex = new Regex("^((25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)$", RegexOptions.Compiled);
-                    UnturnedChat.Say(caller, $"{command[0]} was not found in database, try different name, ip, hwid, steamid", Color.red);
+                    UnturnedChat.Say(caller, $"{command[0]} was not found in database, try different name, ip or steamid", Color.red, true);
                     return;
                 }
                 
 
-                if (!GlobalBan.Instance.Database.WhiteList(ban.ip))
+                if (!GlobalBan.Instance.DatabaseManager.WhiteList(ban.steamid))
                 {
-                    UnturnedChat.Say(caller, $"{ban.Player} is already whitelisted!", Color.red);
+                    UnturnedChat.Say(caller, $"{ban.Player} is already whitelisted!", Color.yellow, true);
                     return;
                 }
-                UnturnedChat.Say(caller, $"{ban.Player} was whitelisted by ip: {ban.ip}!", Color.white);
+                UnturnedChat.Say(caller, $"{ban.Player} was whitelisted by steamid: {ban.steamid}!", Color.white, true);
             }
             catch (System.Exception ex)
             {

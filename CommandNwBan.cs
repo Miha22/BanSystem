@@ -67,7 +67,7 @@ namespace BanSystem
                     }
                 }
                 //System.Console.WriteLine("point 0");
-                DatabaseManager.Ban ban = GlobalBan.Instance.Database.GetBan(command[0]);
+                DatabaseManager.Ban ban = GlobalBan.Instance.DatabaseManager.GetBan(command[0]);
                 //System.Console.WriteLine("point 1");
                 if (ban == null)
                 {
@@ -75,7 +75,7 @@ namespace BanSystem
                     return;
                 }
                 //System.Console.WriteLine("point 2");
-                GlobalBan.Instance.Database.BanPlayer(ban.Player, ban.steamid, caller.DisplayName, reason, duration);//0=forever
+                GlobalBan.Instance.DatabaseManager.BanPlayer(ban.Player, ban.steamid, caller.DisplayName, reason, duration);//0=forever
                 //System.Console.WriteLine("point 3");
                 if (PlayerTool.tryGetSteamPlayer(command[0], out SteamPlayer targetPlayer))
                     Provider.kick(targetPlayer.playerID.steamID, GlobalBan.Instance.Translate("ban_private", reason, caller.DisplayName));

@@ -20,7 +20,7 @@ namespace BanSystem
         //private File file;
         //private Process serverProcess;
         //private int _botProcessID;
-        internal DatabaseManager Database;
+        internal DatabaseManager DatabaseManager;
         internal int UTCoffset { get; private set; }
         internal static string ServerName;
 
@@ -50,7 +50,7 @@ namespace BanSystem
         {
             Instance = this;
             UTCoffset = (int)System.Math.Ceiling((DateTime.Now - DateTime.UtcNow).TotalHours);
-            Database = new DatabaseManager();
+            DatabaseManager = new DatabaseManager();
             ServerName = GetServerName();
             //serverProcess = new Process();
             //Console.WriteLine($"server save: {}");
@@ -147,7 +147,7 @@ namespace BanSystem
             //}
             try
             {
-                if (Database.IsWhite(Parser.getIPFromUInt32(pConnectionState.m_nRemoteIP)))
+                if (DatabaseManager.IsWhite(player.CSteamID.ToString()))
                     return;
                 if (IsBadIP(player))
                 {
@@ -156,7 +156,7 @@ namespace BanSystem
                     Reject(player.CSteamID, Translate("join_vpn_detected"));
                     return;
                 }
-                if (Database.IsBanned(player, out DateTime date, out string reason))
+                if (DatabaseManager.IsBanned(player, out DateTime date, out string reason))
                 {
                     Reject(player.CSteamID, $"{(date == DateTime.MaxValue ? Translate("join_global_ban_message_permanent", reason) : Translate("join_global_ban_message", date.AddHours(-UTCoffset).ToString("dddd, dd MMMM yyyy HH:mm:ss"), reason))}");
                     return;

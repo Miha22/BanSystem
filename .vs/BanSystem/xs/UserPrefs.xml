@@ -1,14 +1,14 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workbench ActiveDocument="DatabaseManager.cs">
     <Files>
-      <File FileName="CommandWhite.cs" Line="5" Column="43" />
+      <File FileName="CommandWhite.cs" Line="28" Column="77" />
       <File FileName="CommandNwBan.cs" />
-      <File FileName="CommandBan.cs" Line="78" Column="50" />
-      <File FileName="GlobalBanConfiguration.cs" Line="48" Column="38" />
+      <File FileName="CommandBan.cs" />
+      <File FileName="GlobalBanConfiguration.cs" />
       <File FileName="CommandNwUnban.cs" />
       <File FileName="CommandUnban.cs" />
-      <File FileName="GlobalBan.cs" Line="315" Column="1" />
-      <File FileName="DatabaseManager.cs" Line="113" Column="22" />
+      <File FileName="GlobalBan.cs" Line="150" Column="39" />
+      <File FileName="DatabaseManager.cs" Line="59" Column="10" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">

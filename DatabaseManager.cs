@@ -55,19 +55,19 @@ namespace BanSystem
             return connection;
         }
 
-        public bool IsWhite(string ip)
+        public bool IsWhite(string steamid)
         {
             bool flag = false;
             using (MySqlConnection connection = CreateConnection())
             {
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "select 1 from `" + GlobalBan.Instance.Configuration.Instance.DatabaseWhitelist + "` WHERE (`ip` = '" + ip + "');";
+                command.CommandText = "select 1 from `" + GlobalBan.Instance.Configuration.Instance.DatabaseWhitelist + "` WHERE (`steamid` = '" + steamid + "');";
                 flag = command.ExecuteScalar() != null;
                 if (flag && GlobalBan.Instance.Configuration.Instance.ShowConnectInfo)
                 {
                     ConsoleColor def = Console.ForegroundColor;
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine($"\n| Connected whitelisted player: \n| IP: {ip}\n");
+                    Console.WriteLine($"\n| Connected whitelisted player: \n| SteamID: {steamid}\n");
                     Console.ForegroundColor = def;
                 }
                 CloseConnection(connection);
@@ -226,15 +226,15 @@ namespace BanSystem
             }
         }
 
-        public bool WhiteList(string ip)
+        public bool WhiteList(string steamid)
         {
-            if (IsWhite(ip))
+            if (IsWhite(steamid))
                 return false;
             using (MySqlConnection connection = CreateConnection())
             {
                 MySqlCommand command = connection.CreateCommand();
-                command.Parameters.AddWithValue("@ip", ip);
-                command.CommandText = "insert into `" + GlobalBan.Instance.Configuration.Instance.DatabaseWhitelist + "` (`ip`) values(@ip);";
+                command.Parameters.AddWithValue("@steamid", steamid);
+                command.CommandText = "insert into `" + GlobalBan.Instance.Configuration.Instance.DatabaseWhitelist + "` (`steamid`) values(@steamid);";
                 command.ExecuteNonQuery();
                 CloseConnection(connection);
             }
