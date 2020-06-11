@@ -1,22 +1,24 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workbench ActiveDocument="DatabaseManager.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="CommandWhite.cs">
     <Files>
-      <File FileName="CommandWhite.cs" Line="28" Column="77" />
-      <File FileName="CommandNwBan.cs" />
-      <File FileName="CommandBan.cs" />
+      <File FileName="CommandWhite.cs" Line="35" Column="17" />
+      <File FileName="CommandNwBan.cs" Line="75" Column="28" />
+      <File FileName="CommandBan.cs" Line="86" Column="101" />
       <File FileName="GlobalBanConfiguration.cs" />
-      <File FileName="CommandNwUnban.cs" />
-      <File FileName="CommandUnban.cs" />
-      <File FileName="GlobalBan.cs" Line="150" Column="39" />
-      <File FileName="DatabaseManager.cs" Line="59" Column="10" />
+      <File FileName="CommandNwUnban.cs" Line="58" Column="112" />
+      <File FileName="CommandUnban.cs" Line="59" Column="113" />
+      <File FileName="DatabaseManager.cs" Line="112" Column="45" />
+      <File FileName="CommandBan1.cs" Line="1" Column="1" />
+      <File FileName="CommandGetBan.cs" Line="45" Column="52" />
+      <File FileName="ForGays.cs" Line="1" Column="1" />
+      <File FileName="GlobalBan.cs" Line="164" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="BanSystem" expanded="True">
             <Node name="BanSystem" expanded="True">
-              <Node name="References" expanded="True" />
-              <Node name="DatabaseManager.cs" selected="True" />
+              <Node name="CommandWhite.cs" selected="True" />
             </Node>
           </Node>
         </State>

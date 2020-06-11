@@ -78,7 +78,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandBan1.cs" />
     <Compile Include="DBtest.cs" />
     <Compile Include="DiscordWebhookMessage - Copy.cs" />
     <Compile Include="DiscordWebhookMessage.cs" />
@@ -97,7 +96,6 @@
     <Compile Include="ShowConnect.cs" />
     <Compile Include="CommandNwBan.cs" />
     <Compile Include="CommandNwUnban.cs" />
-    <Compile Include="ForGays.cs" />
     <Compile Include="Provider.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -126,6 +124,8 @@
     <None Include="Libraries\MySql.Data.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="CommandBan1.cs" />
+    <None Include="ForGays.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

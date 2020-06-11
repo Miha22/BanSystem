@@ -22,7 +22,7 @@ namespace BanSystem
             {
                 if (command.Length == 0 || command.Length > 3)
                 {
-                    UnturnedChat.Say(caller, GlobalBan.Instance.Translate("invalid_command", Syntax), Color.red);
+                    UnturnedChat.Say(caller, GlobalBan.Instance.Translate("invalid_command", Syntax), Color.red, true);
                     return;
                 }
                 //string charactername;
@@ -41,7 +41,7 @@ namespace BanSystem
                 {
                     if (!uint.TryParse(command[2].Substring(0, 1), out uint mult))
                     {
-                        UnturnedChat.Say(caller, "Unabled to ban player: Invalid ban time", Color.red);
+                        UnturnedChat.Say(caller, "Unabled to ban player: Invalid ban time", Color.red, true);
                         return;
                     }
                     switch (command[2].Substring(1).ToLower())
@@ -62,32 +62,33 @@ namespace BanSystem
                             duration = 31536000U * mult;
                             break;
                         default:
-                            UnturnedChat.Say(caller, "Unabled to ban player: Invalid ban time", Color.red);
+                            UnturnedChat.Say(caller, "Unabled to ban player: Invalid ban time", Color.red, true);
                             return;
                     }
                 }
                 //System.Console.WriteLine("point 0");
-                DatabaseManager.Ban ban = GlobalBan.Instance.DatabaseManager.GetBan(command[0]);
+                DatabaseManager.PlayerInfo playerInfo = GlobalBan.Instance.DatabaseManager.GetBan(command[0], true);
                 //System.Console.WriteLine("point 1");
-                if (ban == null)
+                if (playerInfo == null)
                 {
-                    UnturnedChat.Say(caller, $"{command[0]} was not found in global database, try different name or steamID", Color.red);
+                    UnturnedChat.Say(caller, $"{command[0]} was not found in global database, try different name or steamID", Color.red, true);
                     return;
                 }
                 //System.Console.WriteLine("point 2");
-                GlobalBan.Instance.DatabaseManager.BanPlayer(ban.Player, ban.steamid, caller.DisplayName, reason, duration);//0=forever
+                GlobalBan.Instance.DatabaseManager.UnbanPlayer(playerInfo.steamid, false);
+                GlobalBan.Instance.DatabaseManager.BanPlayer(playerInfo.Charactername, playerInfo.steamid, caller.DisplayName, reason, duration, true);//0=forever
                 //System.Console.WriteLine("point 3");
                 if (PlayerTool.tryGetSteamPlayer(command[0], out SteamPlayer targetPlayer))
                     Provider.kick(targetPlayer.playerID.steamID, GlobalBan.Instance.Translate("ban_private", reason, caller.DisplayName));
                 //System.Console.WriteLine("point 4");
-                UnturnedChat.Say(GlobalBan.Instance.Translate("ban_public", ban.Player, reason, caller.DisplayName), Color.magenta);
+                UnturnedChat.Say(GlobalBan.Instance.Translate("ban_public", playerInfo.Charactername, reason, caller.DisplayName), GlobalBan.Instance.GetColor(), true);
                 Embed embed = new Embed
                 {
                     fields = new Field[]
                     {
                         new Field("**Server**", $"{GlobalBan.ServerName ?? "N/A"}", false),
-                        new Field("**Player**", ban.Player, true),
-                        new Field("**SteamID**", ban.steamid, true),
+                        new Field("**Player**", playerInfo.Charactername, true),
+                        new Field("**SteamID**", playerInfo.steamid, true),
                         new Field("**Reason**", reason, true),
                         new Field("**Duration**", duration == 0U ? "Permanent" : $"{duration} sec.\ntill: {System.DateTime.UtcNow.AddSeconds(duration)} UTC", true),
                         new Field("**Admin**", caller.DisplayName, true),

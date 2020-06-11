@@ -156,9 +156,9 @@ namespace BanSystem
                     Reject(player.CSteamID, Translate("join_vpn_detected"));
                     return;
                 }
-                if (DatabaseManager.IsBanned(player, out DateTime date, out string reason))
+                if (DatabaseManager.IsBanned(player, out DateTime date, out string reason, out bool global))
                 {
-                    Reject(player.CSteamID, $"{(date == DateTime.MaxValue ? Translate("join_global_ban_message_permanent", reason) : Translate("join_global_ban_message", date.AddHours(-UTCoffset).ToString("dddd, dd MMMM yyyy HH:mm:ss"), reason))}");
+                    Reject(player.CSteamID, $"{(date == DateTime.MaxValue ? (global ? Translate("join_global_ban_message_permanent", reason) : Translate("join_server_ban_message_permanent", reason)) : global ? Translate("join_global_ban_message", date.AddHours(-UTCoffset).ToString("dddd, dd MMMM yyyy HH:mm:ss"), reason) : Translate("join_server_ban_message", date.AddHours(-UTCoffset).ToString("dddd, dd MMMM yyyy HH:mm:ss"), reason))}");
                     return;
                 }
 

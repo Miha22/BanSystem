@@ -25,7 +25,7 @@ namespace BanSystem
                     return;
                 }
 
-                DatabaseManager.Ban ban = GlobalBan.Instance.DatabaseManager.GetBan(command[0].Trim().ToLower());
+                DatabaseManager.PlayerInfo ban = GlobalBan.Instance.DatabaseManager.GetBan(command[0].Trim().ToLower(), true);
                 if (ban == null)
                 {
                     //Regex regex = new Regex("^((25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)$", RegexOptions.Compiled);
@@ -36,10 +36,10 @@ namespace BanSystem
 
                 if (!GlobalBan.Instance.DatabaseManager.WhiteList(ban.steamid))
                 {
-                    UnturnedChat.Say(caller, $"{ban.Player} is already whitelisted!", Color.yellow, true);
+                    UnturnedChat.Say(caller, $"{ban.Charactername} is already whitelisted!", Color.yellow, true);
                     return;
                 }
-                UnturnedChat.Say(caller, $"{ban.Player} was whitelisted by steamid: {ban.steamid}!", Color.white, true);
+                UnturnedChat.Say(caller, $"{ban.Charactername} was whitelisted by steamid: {ban.steamid}!", Color.white, true);
             }
             catch (System.Exception ex)
             {
